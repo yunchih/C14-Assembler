@@ -2,6 +2,14 @@
 #include<string.h>
 #define maxLenOfTokens 10
 #define maxNumOfTokens 10
+void init_file(FILE* src,const char *filename){
+	*src = malloc(sizeof(FILE));
+	*src = fopen(filename,"r");
+}
+void destroy_file(FILE* src){
+	fclose(src);
+}_
+
 char* trimComment(char* str){
 	char *copy=str;
 	while(*copy && *copy!=';')copy++;
@@ -11,6 +19,10 @@ char* trimComment(char* str){
 int tokenize(char dest[][10],char* src){
 	int n=0;
 	char *delim = " \t,";
+	/*
+	   make a copy and allocate memory to it 
+	   ( so that trimComment can write on memory)
+	*/
 	char *srcCopy = strdup(src);
 
 	srcCopy = trimComment(srcCopy);
@@ -32,19 +44,25 @@ int tokenize(char dest[][10],char* src){
 	return n;
 }
 
-void parse_line(char* str){
+void read_line(FILE* src){
+	char *line = NULL;
+	size_t len = 0;
+	int numOfTokens;
 	char tokens[maxNumOfTokens][maxLenOfTokens];
-	int numOfTokens = tokenize(tokens,str);
+
+	while(getline(&line,&len,src)!= -1){
+		numOfTokens = tokenize(tokens,line);
+	}
 }
 int main(int argc, char **argv)
 {
-	struct asm_file *af = NULL;
+	FILE *src = NULL;
 	if (argc != 2) {
 		printf("Correct Usage: %s [filenname]\n", argv[0]);
 		exit(1);
 	}
-	asm_init(&af, argv[1]);
-	asm_start(af);
-	asm_destroy(af);
+	file_init(&src, argv[1]);
+	read_line(&src);
+	file_destroy(&src);
 	return 0;
 }
