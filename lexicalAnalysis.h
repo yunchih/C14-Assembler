@@ -1,0 +1,1 @@
+char* trimComment(char* str);
