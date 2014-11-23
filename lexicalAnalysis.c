@@ -24,10 +24,11 @@
 extern int ErrorCount ;
 static int lineNumber ;
 
-void lexical_analysis(  FILE* src, 
-						Tokens_list**    tk_list,
-						Symbols_table**  s_table,
-						Variable_table** var_table ){
+void lexical_analysis(  
+	 FILE* src, 
+	 Tokens_list**    tk_list,
+	 Symbols_table**  s_table,
+	 Variable_table** var_table ){
 
 	char line[MAX_LINE_LEN];
 	int IC = 0 , MODE = UNDEFINED;
