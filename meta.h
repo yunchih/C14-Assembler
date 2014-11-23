@@ -1,9 +1,16 @@
 #ifndef META_H
 #define META_H
 
-#define MAX_INSTRU_LEN 	  5
+#define MAX_INSTRU_LEN  5
+
+/*---------Function Prototype---------*/
+
+void printError( char* errorMessage , int lineNumber );
+
+/*---------Global Variable---------*/
 
 extern int INSTRU_TABLE_SIZE;
+
 enum 
 {
 	TK_SYMBOL,
@@ -22,10 +29,13 @@ enum
 	ERR_INV_SYMBOL
 }
 
-/* Mode */
+/*---------Mode---------*/
+
 enum { UNDEFINED , DATA , CODE } ;
 
 typedef enum FmtType { REG,MEM,CON } FmtType ;
+
+/*---------Struct Declaration---------*/
 
 typedef struct Token_struct 
 {
@@ -35,16 +45,15 @@ typedef struct Token_struct
 } Token;
 typedef struct Tokens_list_struct 
 {
-	int lineNum;
 	int type;
 	token* first_token;
+	int addr;
 	struct Tokens_list_struct* next ;
 } Tokens_list;
 typedef struct Symbols_table_struct
 {
 	char* symbol;
-	int index;
-	int lineNum;
+	int addr;
 	struct Symbols_table_struct* next ;
 } Symbols_table;
 typedef struct Variable_table_struct ;
@@ -52,6 +61,7 @@ typedef struct Variable_table_struct ;
 	char* var;
 	char* value;
 	int type;
+	int addr;
 	struct Variable_table_struct* next ;
 } Variable_table ;
 

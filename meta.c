@@ -1,4 +1,6 @@
 #include<stdio.h>
+#include "meta.h"
+
 int INSTRU_TABLE_SIZE = 18 ;
 Instructions_table instructions_table[ INSTRU_TABLE_SIZE ] = 
 {

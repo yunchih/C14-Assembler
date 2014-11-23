@@ -1,16 +1,18 @@
 #include<stdio.h>
+#include "lexicalAnalysis.h"
+#include "code_generator.h"
 
-void init_file(FILE* src,const char *filename){
+void init_file(FILE* src,const char *filename,char* type,char* message ){
 	src = malloc(sizeof(FILE));
-	if((src = fopen(filename,"r"))==NULL)
-		printf("Fail to open %s , please ensure it exists",filename);
+	if((src = fopen(filename,type))==NULL)
+		printf("Fail to open %s",filename);
 	else
-		puts("start assembling....");
+		puts(message);
 
 }
 int main(int argc, char **argv)
 {
-	FILE *src = NULL;
+	FILE *src = NULL, *out = NULL;
 	Symbols_table*  s_table;
 	Variable_table* var_table;
     Tokens_list*    tk_list;
@@ -20,8 +22,13 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	file_init(src, argv[1]);
+	file_init(src, argv[1],"r","start assembling....");
 	lexical_analysis( src, &tk_list, &s_table, &var_table );
 	fclose(src);
+
+	file_init(out,"a.out","w","start writing code....");
+	generate_code( out, tk_list, s_table, var_table );
+	fclose(out);
+
 	return 0;
 }

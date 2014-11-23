@@ -1,6 +1,8 @@
 #include<string.h>
 #include<ctype.h>
 #include<stdlib.h>
+#include "meta.h"
+#include "lexicalAnalysis.h"
 
 #define MAX_LINE_LEN 100
 #define MAX_SYMBOL_LEN 20
@@ -70,9 +72,6 @@ void lexical_analysis(
 		}
 		else if( MODE == DATA )
 		{
-			/*
-			 * TODO
-			 */
 			if( !isLegalLiteral( str_list->str )
 				PERRC( "variable name contains invalid characters");
 			if( strlen( str_list->str ) > MAX_VAR_LEN )
@@ -118,8 +117,7 @@ void lexical_analysis(
 				next_symbol->symbol = malloc( s_len ); // no need to plus one here because we will get rid of ':'
 
 				strncpy( next_symbol->symbol, str_list->str , s_len-1 ); // get rid of ':'
-				next_symbol->index = IC ;
-				next_symbol->lineNum = lineNumber;
+				next_symbol->addr = IC ;
 
 				if(*s_table == NULL)
 					*s_table = next_symbol;
@@ -128,11 +126,6 @@ void lexical_analysis(
 
 				cur_symbol = next_symbol;
 				
-			/*
-			 * TODO:
-			 *     Reconsider how Instruction Counter should increment.	
-			 */
-				IC++;
 		}
 		/* match instruction */
 		else if( MODE == CODE && ( typeOfInstr = classifyInstruction( str_list->str ) ) != ERROR )
@@ -154,14 +147,20 @@ void lexical_analysis(
 					 continue;	 
 			}	
 			next_tk_list              = (Tokens_list*)malloc( sizeof(Tokens_list) );
-			next_tk_list->lineNum     = lineNum;
 			next_tk_list->type        = typeOfInstr;
 			next_tk_list->first_token = line_tk_list;
+			next_tk_list->addr		  = IC;
 			if(tk_list == NULL)
 				tk_list = next_tk_list;
 			else
 				cur_tk_list->next = next_tk_list;
 			cur_tk_list = next_tk_list;
+
+			/*
+			 * TODO:
+			 *     Reconsider how Instruction Counter should increment.	
+			 */
+			IC++;
 		}
 		else
 		{
