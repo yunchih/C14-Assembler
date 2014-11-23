@@ -1,6 +1,9 @@
 #ifndef META_H
 #define META_H
 
+#define MAX_INSTRU_LEN 	  5
+
+extern int INSTRU_TABLE_SIZE;
 enum 
 {
 	TK_SYMBOL,
@@ -22,6 +25,7 @@ enum
 /* Mode */
 enum { UNDEFINED , DATA , CODE } ;
 
+typedef enum FmtType { REG,MEM,CON } FmtType ;
 
 typedef struct Token_struct 
 {
@@ -32,6 +36,7 @@ typedef struct Token_struct
 typedef struct Tokens_list_struct 
 {
 	int lineNum;
+	int type;
 	token* first_token;
 	struct Tokens_list_struct* next ;
 } Tokens_list;
@@ -46,6 +51,15 @@ typedef struct Variable_table_struct ;
 {
 	char* var;
 	char* value;
+	int type;
 	struct Variable_table_struct* next ;
 } Variable_table ;
+
+typedef struct
+{
+	int op;
+	char name[ MAX_INSTRU_LEN ];
+	int len;
+	int fmt[3];
+}Instructions_table;
 #endif

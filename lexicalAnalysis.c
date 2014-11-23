@@ -7,7 +7,8 @@
 #define MAX_VAR_LEN 20
 #define ERROR -1
 #define VALID_HEX(c) ( ( c >= 'A' && c <= 'F' ) ||  isdigit(c) )
-
+#define PERR(s)  printError( s , lineNumber )
+#define PERRC(s) printError( s , lineNumber );continue
 /*
  * TODO:
  *     1. Check if variable or symbol start with number.
@@ -17,12 +18,19 @@
  *        increment it whenever the function is called.  
  *        But how to retrieve that variable when needed )
  *        Or a global variable would be better?
+ *     4. How IC should increment.
  */
-extern ErrorCount ;
-void lexical_analysis(FILE* src, Tokens_list** tk_list, Symbols_table** s_table, Variable_table** var_table){
+
+extern int ErrorCount ;
+static int lineNumber ;
+
+void lexical_analysis(  FILE* src, 
+						Tokens_list**    tk_list,
+						Symbols_table**  s_table,
+						Variable_table** var_table ){
+
 	char line[MAX_LINE_LEN];
-	int lineNumber = 0 , IC = 0 ;
-	int MODE;
+	int IC = 0 , MODE = UNDEFINED;
 	char* delim = " \t\n,";
 
 	Strings_list   *str_list ;
@@ -34,7 +42,7 @@ void lexical_analysis(FILE* src, Tokens_list** tk_list, Symbols_table** s_table,
 	*s_table   = NULL;
 	*tk_list   = NULL;
 	*var_table = NULL;
-	MODE       = UNDEFINED;
+	lineNumber = 0;
 	ErrorCount = 0;
 	int typeOfInstr = 0 , typeOfToken = 0 , typeOfImmediate = 0 ;
 	
@@ -49,14 +57,14 @@ void lexical_analysis(FILE* src, Tokens_list** tk_list, Symbols_table** s_table,
 		else if(*(str_list->str) == '.')
 		{
 			if( str_list->next != NULL )
-				printError( "directive must not share the same line with other instructions", lineNumber );
+				PERRC( "directive must not share the same line with other instructions");
 
 			if( !case_insensitive_cmp( ".CODE", *( str_list->str ) ) )
 				MODE = CODE ;
 			else if( !case_insensitive_cmp( ".DATA", *( str_list->str ) ) )
 				MODE = DATA ;
 			else
-				printError( "mal-formed directive. Only .DATA and .CODE recognized", lineNumber  );
+				PERRC( "mal-formed directive. Only .DATA and .CODE recognized");
 
 		}
 		else if( MODE == DATA )
@@ -65,14 +73,33 @@ void lexical_analysis(FILE* src, Tokens_list** tk_list, Symbols_table** s_table,
 			 * TODO
 			 */
 			if( !isLegalLiteral( str_list->str )
-				printError( "variable name contains invalid characters",lineNumber );
+				PERRC( "variable name contains invalid characters");
 			if( strlen( str_list->str ) > MAX_VAR_LEN )
-				printError( "variable name must contain no more than 20 characters", lineNumber );
-			if( str_list->next != NULL )
-				typeOfImmediate = classifyImmediate( str_list->str , lineNumber );
+				PERRC( "variable name must contain no more than 20 characters");
+			if( str_list->next == NULL || str_list->next->next != NULL )
+				PERRC( "make sure you have .code before any instruction");
+
 			if( *(str_list->str)  == '?')
 				typeOfImmediate = TK_UNIN_IMME ;
-			if( str_list->next == NULL || str_list->next->next != NULL )
+			else
+				typeOfImmediate = classifyImmediate( str_list->next->str );
+			
+			if(typeOfImmediate == ERROR)
+				continue;
+			if(typeOfImmediate == TK_NON_IMME)
+				PERRC( "make sure you have .code before any instruction");
+
+			next_var_table = (Variable_table*)malloc( sizeof(Variable_table) );
+			strcpy( next_var_table->var , str_list->str );
+			next_var_table->value = str_list->next->str;
+			next_var_table->type = typeOfImmediate;
+			
+			if(var_table == NULL)
+				*var_table = next_var_table;
+			else
+				cur_var_table->next = next_var_table;
+
+			cur_var_table = next_var_table;
 
 		}
 		/* match label */
@@ -80,11 +107,11 @@ void lexical_analysis(FILE* src, Tokens_list** tk_list, Symbols_table** s_table,
 		{
 			int s_len = strlen( str_list->str ) ;
 			if( !isLegalLiteral( str_list->str )
-				printError( "variable name contains invalid characters",lineNumber );
+				PERRC( "variable name contains invalid characters");
 			if( s_len > MAX_SYMBOL_LEN )
-				printError( "symbol must contain no more than 20 characters", lineNumber );
+				PERRC( "symbol must contain no more than 20 characters");
 			if( str_list->next != NULL )
-				printError( "label must not share line with other instructions",lineNumber );
+				PERRC( "label must not share line with other instructions");
 				
 				next_symbol = (Symbols_table*)malloc( sizeof(symbols_table) );
 				next_symbol->symbol = malloc( s_len ); // no need to plus one here because we will get rid of ':'
@@ -99,15 +126,20 @@ void lexical_analysis(FILE* src, Tokens_list** tk_list, Symbols_table** s_table,
 					cur_symbol->next = next_symbol;
 
 				cur_symbol = next_symbol;
-
+				
+			/*
+			 * TODO:
+			 *     Reconsider how Instruction Counter should increment.	
+			 */
+				IC++;
 		}
 		/* match instruction */
-		else if( ( typeOfInstr = classifyInstruction( str_list->str ) ) != ERROR )
+		else if( MODE == CODE && ( typeOfInstr = classifyInstruction( str_list->str ) ) != ERROR )
 		{
 			str_list = str_list->next ;
 			while( str_list != NULL )
 			{
-				next_tk = (token*)malloc( sizeof(token) );
+				next_tk        = (token*)malloc( sizeof(token) );
 				next_tk->token = malloc( strlen( str_list ) );
 				strcpy( next_tk->token , str_list->str );
 				if(line_tk_list == NULL)
@@ -116,13 +148,24 @@ void lexical_analysis(FILE* src, Tokens_list** tk_list, Symbols_table** s_table,
 					cur_tk->next = next_tk;
 				cur_tk = next_tk;
 
-				typeOfToken = classifyToken( cur_tk , lineNumber );
-				if( typeOfToken == ERROR )
-					break;	
+				typeOfToken = classifyToken( cur_tk );
+				if( typeOfToken == ERROR ) 
+					 continue;	 
 			}	
+			next_tk_list              = (Tokens_list*)malloc( sizeof(Tokens_list) );
+			next_tk_list->lineNum     = lineNum;
+			next_tk_list->type        = typeOfInstr;
+			next_tk_list->first_token = line_tk_list;
+			if(tk_list == NULL)
+				tk_list = next_tk_list;
+			else
+				cur_tk_list->next = next_tk_list;
+			cur_tk_list = next_tk_list;
 		}
 		else
-			printError( "invalid instruction",lineNumber );
+		{
+			PERRC( "invalid instruction.  Also, make sure you have .code before any instruction.");
+		}
 	}
 }
 int legalLiteral( char* p )
@@ -134,10 +177,10 @@ int legalLiteral( char* p )
 		}
 	return 1;
 }
-int classifyToken( char* token,int lineNumber )
+int classifyToken( char* token)
 {
 	/* match immediate */
-	int typeOfImmediate = classifyImmediate( token , lineNumber );
+	int typeOfImmediate = classifyImmediate( token );
 	if( typeOfImmediate != TK_NON_IMME )
 		return typeOfImmediate;
 
@@ -147,7 +190,7 @@ int classifyToken( char* token,int lineNumber )
 		int n = strlen( token );
 		if( *( token + n - 1 ) != ']' )
 		{
-			printError("Unclosed bracket",lineNumber);
+			PERR("Unclosed bracket");
 			return ERROR;
 		}
 		/* strip '[' and ']'  */
@@ -156,7 +199,7 @@ int classifyToken( char* token,int lineNumber )
 	}
 	if( *token == ']' )
 	{
-		printError("Unclosed bracket",lineNumber);
+		PERR("Unclosed bracket");
 		return ERROR;
 	}
 	/* match register */
@@ -165,11 +208,11 @@ int classifyToken( char* token,int lineNumber )
 		token++;
 		if(*(token+1) == '\0' && VALID_HEX(*token)  )
 			return TK_REG;
-		printError("invalid register name",lineNumber );
+		PERR("invalid register name");
 	}
 
 }
-int classifyImmediate( char* imme , int lineNumber )
+int classifyImmediate( char* imme )
 {
 	/* match decimal 0 or hexidecimal number */
 	if( *imme == '0' )
@@ -180,7 +223,7 @@ int classifyImmediate( char* imme , int lineNumber )
 			while(*imme!='\0')
 				if( !VALID_HEX(*imme) )
 				{
-					printError("invalid hexadecimal immediate",lineNumber );
+					PERR("invalid hexadecimal immediate");
 					return ERROR;
 				}
 			return TK_HEX;
@@ -188,7 +231,7 @@ int classifyImmediate( char* imme , int lineNumber )
 		else if(*imme == '\0' )
 			return TK_DEC;
 
-		printError("invalid immediate or symbol",lineNumber );
+		PERR("invalid immediate or symbol");
 		return ERROR;
 	}
 	/* match decimal */
@@ -196,13 +239,13 @@ int classifyImmediate( char* imme , int lineNumber )
 	{
 		if( *imme == '-' && !isdigit(*(imme+1)) )
 		{
-			printError("invalid negative immediate",lineNumber );
+			PERR("invalid negative immediate");
 			return ERROR;
 		}
 		while(*(++imme)!='\0')
 			if(!isdigit(*imme))
 			{
-				printError("invalid decimal immediate or symbol",lineNumber );
+				PERR("invalid decimal immediate or symbol");
 				return ERROR;
 			}
 		return TK_DEC;
