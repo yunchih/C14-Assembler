@@ -34,11 +34,11 @@ Strings_list* tokenize( char* line , char* delim )
    	{
 		next_list = (string_list*) malloc( sizeof(string_list) );
 		next_list->next = NULL;
-		next_list->string = (char*) malloc( strlen(tok)+1 );
-		strcpy( next_list->string, tok );
+		next_list->str = (char*) malloc( strlen(tok)+1 );
+		strcpy( next_list->str, tok );
 
 		/* strip comment */
-		if( ( comment_pos = strchr( next_list->string, ';' )) != NULL )
+		if( ( comment_pos = strchr( next_list->str, ';' )) != NULL )
 			*comment_pos = '\0' ;
 		/* Adding first token to the list */
 		if(list == NULL)

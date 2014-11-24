@@ -1,7 +1,12 @@
 #ifndef META_H
 #define META_H
 
+/*---------Useful Constant---------*/
+
 #define MAX_INSTRU_LEN  5
+#define MAX_SYMBOL_LEN 20
+#define MAX_VAR_LEN 20
+#define ERROR -1
 
 /*---------Function Prototype---------*/
 
@@ -42,14 +47,14 @@ typedef struct Token_struct
 	char* token;
 	int type;
 	struct Token_struct* next;
-} Token;
+} Opr;
 typedef struct Tokens_list_struct 
 {
 	int type;
-	token* first_token;
+	Opr* first_opr;
 	int addr;
 	struct Tokens_list_struct* next ;
-} Tokens_list;
+} Instru_list;
 typedef struct Symbols_table_struct
 {
 	char* symbol;
@@ -72,4 +77,5 @@ typedef struct
 	int len;
 	int fmt[3];
 }Instructions_table;
+
 #endif

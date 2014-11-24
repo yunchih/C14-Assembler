@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 	FILE *src = NULL, *out = NULL;
 	Symbols_table*  s_table;
 	Variable_table* var_table;
-    Tokens_list*    tk_list;
+    Instru_list*    instru_list;
 	
 	if (argc != 2) {
 		printf("Correct Usage: %s [filenname]\n", argv[0]);
@@ -23,11 +23,11 @@ int main(int argc, char **argv)
 	}
 
 	file_init(src, argv[1],"r","start assembling....");
-	lexical_analysis( src, &tk_list, &s_table, &var_table );
+	lexical_analysis( src, &instru_list, &s_table, &var_table );
 	fclose(src);
 
 	file_init(out,"a.out","w","start writing code....");
-	generate_code( out, tk_list, s_table, var_table );
+	generate_code( out, instru_list, s_table, var_table );
 	fclose(out);
 
 	return 0;
