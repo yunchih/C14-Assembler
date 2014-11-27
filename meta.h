@@ -3,42 +3,11 @@
 
 /*---------Useful Constant---------*/
 
+#define INSTRU_TABLE_SIZE 18
 #define MAX_INSTRU_LEN  5
 #define MAX_SYMBOL_LEN 20
 #define MAX_VAR_LEN 20
 #define ERROR -1
-
-/*---------Function Prototype---------*/
-
-void printError( char* errorMessage , int lineNumber );
-
-/*---------Global Variable---------*/
-
-extern int INSTRU_TABLE_SIZE;
-
-enum 
-{
-	TK_SYMBOL,
-	TK_INST,
-	TK_REG,
-	TK_HEX,
-	TK_DEC,
-	TK_UNIN_IMME,
-	TK_NON_IMME,
-	TK_ERROR
-}
-enum
-{
-	ERR_INV_REG,
-	ERR_INV_IMM,
-	ERR_INV_SYMBOL
-}
-
-/*---------Mode---------*/
-
-enum { UNDEFINED , DATA , CODE } ;
-
-typedef enum FmtType { REG,MEM,CON } FmtType ;
 
 /*---------Struct Declaration---------*/
 
@@ -61,7 +30,7 @@ typedef struct Symbols_table_struct
 	int addr;
 	struct Symbols_table_struct* next ;
 } Symbols_table;
-typedef struct Variable_table_struct ;
+typedef struct Variable_table_struct 
 {
 	char* var;
 	char* value;
@@ -77,5 +46,40 @@ typedef struct
 	int len;
 	int fmt[3];
 }Instructions_table;
+
+/*---------Function Prototype---------*/
+
+void printError( char* errorMessage , int lineNumber );
+
+/*---------Global Variable---------*/
+
+extern Instructions_table instructions_table[ INSTRU_TABLE_SIZE ]; 
+
+extern int ErrorCount;
+
+enum 
+{
+	TK_SYMBOL,
+	TK_INST,
+	TK_REG,
+	TK_MEM,
+	TK_HEX,
+	TK_DEC,
+	TK_UNIN_IMME,
+	TK_NON_IMME,
+	TK_ERROR
+};
+enum
+{
+	ERR_INV_REG,
+	ERR_INV_IMM,
+	ERR_INV_SYMBOL
+};
+
+/*---------Mode---------*/
+
+enum { UNDEFINED , DATA , CODE } ;
+
+typedef enum FmtType { REG,MEM,CON } FmtType ;
 
 #endif

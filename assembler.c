@@ -1,8 +1,9 @@
 #include<stdio.h>
+#include<stdlib.h>
 #include "lexicalAnalysis.h"
 #include "code_generator.h"
 
-void init_file(FILE* src,const char *filename,char* type,char* message ){
+void file_init(FILE* src,const char *filename,char* type,char* message ){
 	src = malloc(sizeof(FILE));
 	if((src = fopen(filename,type))==NULL)
 		printf("Fail to open %s",filename);

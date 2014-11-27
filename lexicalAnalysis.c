@@ -1,8 +1,6 @@
 #include<stdio.h>
-#include "meta.h"
+#include<string.h>
 #include "lexicalAnalysis.h"
-#include "tokenClassification.h"
-#include "stringManipulation.h"
 
 #define MAX_LINE_LEN 100
 
@@ -22,27 +20,25 @@ extern int ErrorCount ;
 
 void lexical_analysis(  
 	 FILE* src, 
-	 Instruction**    instru_list,
+	 Instru_list**    instru_list,
 	 Symbols_table**  s_table,
 	 Variable_table** var_table ){
 
-	int lineNumber;
 	char line[MAX_LINE_LEN];
 	int IC = 0 , MODE = UNDEFINED;
 	char* delim = " \t\n,";
 
 	Strings_list   *str_list ;
-	*s_table   = NULL;
-	*tk_list   = NULL;
-	*var_table = NULL;
-	lineNumber = 0;
+	*s_table     = NULL;
+	*instru_list = NULL;
+	*var_table   = NULL;
+	str_list->lineNumber = 0;
 	ErrorCount = 0;
-	int typeOfInstr = 0 , typeOfToken = 0 , typeOfImmediate = 0 ;
+	int typeOfInstr = 0 ;
 	
 	while( fgets ( line, MAX_LINE_LEN , src ) != NULL ){
-		lineNumber++;
+		str_list->lineNumber++;
 		str_list = tokenize( line, delim );
-		str_list->lineNumber = lineNumber;	
 
 		/* blank line or line with comment only */
 		if( str_list == NULL )
@@ -55,17 +51,17 @@ void lexical_analysis(
 		/* match variable */
 		else if( MODE == DATA )
 		{
-			setVar( *var_table, str_list );
+			setVar( var_table, str_list );
 		}
 		/* match label */
 		else if(  *( str_list->str + strlen( str_list->str ) - 1 ) == ':' )	
 		{
-			setLabel( *s_table, IC, str_list );
+			setLabel( s_table, IC, str_list );
 		}
 		/* match instruction */
 		else if( MODE == CODE && ( typeOfInstr = classifyInstruction( str_list->str ) ) != ERROR )
 		{
-			setInstruction( *instru_list, typeOfInstr, str_list );
+			setInstruction( instru_list, typeOfInstr, IC, str_list );
 			/*
 			 * TODO:
 			 *     Reconsider how Instruction Counter should increment.	
@@ -74,7 +70,7 @@ void lexical_analysis(
 		}
 		else
 		{
-			printError( "invalid instruction.  Also, make sure you have .code before any instruction.",lineNumber);
+			printError( "invalid instruction.  Also, make sure you have .code before any instruction.",str_list->lineNumber);
 		}
 	}
 }

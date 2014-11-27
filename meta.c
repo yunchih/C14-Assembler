@@ -1,7 +1,8 @@
 #include<stdio.h>
 #include "meta.h"
 
-int INSTRU_TABLE_SIZE = 18 ;
+int ErrorCount;
+
 Instructions_table instructions_table[ INSTRU_TABLE_SIZE ] = 
 {
     { '0', "hlt",   0, {             }},
@@ -22,11 +23,9 @@ Instructions_table instructions_table[ INSTRU_TABLE_SIZE ] =
     { 'F', "jl",    2, { REG,CON     }},
     { 'N', "read",  1, { REG         }},
     { 'N', "print", 1, { REG         }}
-}
+};
 void printError( char* errorMessage , int lineNumber )
 {
-	/* static NumOfError = 0 ; */
-	/* NumOfError++; */
 	ErrorCount++;
 	printf("On line %d : %s\n",lineNumber,errorMessage);
 }

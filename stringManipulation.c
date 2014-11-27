@@ -1,8 +1,9 @@
 #include<ctype.h>
 #include<string.h>
+#include<stdlib.h>
 #include "stringManipulation.h"
 
-int case_insensitive_cmp(char const *a, char const *b)
+int case_insensitive_cmp(char *a, char *b)
 {
 	int d;
     for (;; a++, b++) {
@@ -13,10 +14,10 @@ int case_insensitive_cmp(char const *a, char const *b)
 }
 Strings_list* tokenize( char* line , char* delim )
 {
-	char* tok;
+	char* token;
 	char* comment_pos = NULL ;
-    string_list* list = NULL;
-    string_list *cur_list, *next_list;
+    Strings_list* list = NULL;
+    Strings_list *cur_list, *next_list;
 
 	/* get the first token */
    	token = strtok( line, delim );
@@ -32,10 +33,10 @@ Strings_list* tokenize( char* line , char* delim )
 	 */
    	while( token != NULL && *token != ';' && comment_pos == NULL ) 
    	{
-		next_list = (string_list*) malloc( sizeof(string_list) );
+		next_list = (Strings_list*) malloc( sizeof(Strings_list) );
 		next_list->next = NULL;
-		next_list->str = (char*) malloc( strlen(tok)+1 );
-		strcpy( next_list->str, tok );
+		next_list->str = (char*) malloc( strlen(token)+1 );
+		strcpy( next_list->str, token );
 
 		/* strip comment */
 		if( ( comment_pos = strchr( next_list->str, ';' )) != NULL )
@@ -49,7 +50,7 @@ Strings_list* tokenize( char* line , char* delim )
 	   
 		/* Updating state variables */
 		cur_list = next_list;
-		tok = strtok(NULL, delim);
+		token = strtok(NULL, delim);
 
    	}
 	return list;

@@ -2,32 +2,33 @@
 #include<ctype.h>
 #include<stdlib.h>
 #include "tokenClassification.h"
-#include "meta.h"
 
 #define VALID_HEX(c) ( ( c >= 'A' && c <= 'F' ) ||  isdigit(c) )
+
 #define PrintErr(s)  printError( s , lineNumber )
-#define PrintErrReturn(s) do{ printError( s , list->lineNumber );return; }while(0)
+
+#define PrintErrReturn(s) do{ printError( s , list->lineNumber );return; } while(0)
 
 void setMode(int* MODE,Strings_list* list)
 {
 	
 	if( list->next != NULL )
-		PrintErrReturn( "directive must not share the same line with other instructions");
+		PrintErrReturn("directive must not share the same line with other instructions");
 
-	if( !case_insensitive_cmp( ".CODE", *( list->str ) ) )
+	if( !case_insensitive_cmp( ".CODE",  list->str  ) )
 		*MODE = CODE ;
-	else if( !case_insensitive_cmp( ".DATA", *( list->str ) ) )
+	else if( !case_insensitive_cmp( ".DATA",  list->str  ) )
 		*MODE = DATA ;
 	else
-		PrintErrReturn( "mal-formed directive. Only .DATA and .CODE recognized");
+		PrintErrReturn("mal-formed directive. Only .DATA and .CODE recognized");
 }
-void setVar(Variable_table* var_table,Strings_list* list)
+void setVar(Variable_table** var_table,Strings_list* list)
 {
 
 	static Variable_table *cur_var_table,  *next_var_table ;
 	int typeOfImmediate;
 
-	if( !isLegalLiteral( list->str )
+	if( !legalLiteral( list->str ) )
 		PrintErrReturn( "variable name contains invalid characters");
 	if( strlen( list->str ) > MAX_VAR_LEN )
 		PrintErrReturn( "variable name must contain no more than 20 characters");
@@ -49,26 +50,26 @@ void setVar(Variable_table* var_table,Strings_list* list)
 	next_var_table->value = list->next->str;
 	next_var_table->type = typeOfImmediate;
 	
-	if(var_table == NULL)
+	if(*var_table == NULL)
 		*var_table = next_var_table;
 	else
 		cur_var_table->next = next_var_table;
 
 	cur_var_table = next_var_table;
 }
-void setLabel( Symbols_table* s_table, int IC, Strings_list* list )
+void setLabel( Symbols_table** s_table, int IC, Strings_list* list )
 {
 	static Symbols_table  *cur_symbol,    *next_symbol   ;
 	int s_len = strlen( list->str ) ;
 
-	if( !isLegalLiteral( list->str )
-		PrintErrReturn( "variable name contains invalid characters");
+	if( !legalLiteral( list->str ) )
+		PrintErrReturn("variable name contains invalid characters");
 	if( s_len > MAX_SYMBOL_LEN )
-		PrintErrReturn( "symbol must contain no more than 20 characters");
+		PrintErrReturn("symbol must contain no more than 20 characters");
 	if( list->next != NULL )
-		PrintErrReturn( "label must not share line with other instructions");
+		PrintErrReturn("label must not share line with other instructions");
 		
-		next_symbol = (Symbols_table*)malloc( sizeof(symbols_table) );
+		next_symbol = (Symbols_table*)malloc( sizeof(Symbols_table) );
 		next_symbol->symbol = malloc( s_len ); // no need to plus one here because we will get rid of ':'
 
 		strncpy( next_symbol->symbol, list->str , s_len-1 ); // get rid of ':'
@@ -81,7 +82,7 @@ void setLabel( Symbols_table* s_table, int IC, Strings_list* list )
 
 		cur_symbol = next_symbol;
 }
-void setInstruction( Instru_list* instru_list, int typeOfInstr, Strings_list* list )
+void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings_list* list )
 {
 	static Instru_list *cur_instru_list, *next_instru_list;
 	Opr *cur_opr, *next_opr ;
@@ -107,12 +108,12 @@ void setInstruction( Instru_list* instru_list, int typeOfInstr, Strings_list* li
 		cur_opr = next_opr;
 
 	}	
-	next_instru_list              = (Instru_list*)malloc( sizeof(Tokens_list) );
-	next_instru_list->type        = typeOfInstr;
-	next_instru_list->first_token = opr_list;
-	next_instru_list->addr		  = IC;
-	if(opr_list == NULL)
-		instru_list = next_instru_list;
+	next_instru_list            = (Instru_list*)malloc( sizeof(Instru_list) );
+	next_instru_list->type      = typeOfInstr;
+	next_instru_list->first_opr = opr_list;
+	next_instru_list->addr      = IC;
+	if(*instru_list == NULL)
+		*instru_list = next_instru_list;
 	else
 		cur_instru_list->next = next_instru_list;
 	cur_instru_list = next_instru_list;
