@@ -27,6 +27,9 @@ int main(int argc, char **argv)
 	lexical_analysis( src, &instru_list, &s_table, &var_table );
 	fclose(src);
 
+	fill_variables( &instru_list, &var_table );
+	fill_symbols( &instru_list, &s_table );
+
 	file_init(out,"a.out","w","start writing code....");
 	generate_code( out, instru_list, s_table, var_table );
 	fclose(out);

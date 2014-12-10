@@ -9,6 +9,12 @@
 
 #define PrintErrReturn(s) do{ printError( s , list->lineNumber );return; } while(0)
 
+/*
+ * TODO
+ * 1. support for unsigned integer
+ *
+ */
+
 void setMode(int* MODE,Strings_list* list)
 {
 	
@@ -108,10 +114,11 @@ void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings
 		cur_opr = next_opr;
 
 	}	
-	next_instru_list            = (Instru_list*)malloc( sizeof(Instru_list) );
-	next_instru_list->type      = typeOfInstr;
-	next_instru_list->first_opr = opr_list;
-	next_instru_list->addr      = IC;
+	next_instru_list             = (Instru_list*)malloc( sizeof(Instru_list) );
+	next_instru_list->type       = typeOfInstr;
+	next_instru_list->oprs       = opr_list;
+	next_instru_list->addr       = IC;
+	next_instru_list->lineNumber = list->lineNumber;
 	if(*instru_list == NULL)
 		*instru_list = next_instru_list;
 	else
@@ -158,7 +165,8 @@ int classifyToken( char* token,int lineNumber )
 			return TK_REG;
 		PrintErr("invalid register name");
 	}
-
+	
+	return TK_VAR_OR_SYM;
 }
 int classifyImmediate( char* imme, int lineNumber )
 {
@@ -166,8 +174,9 @@ int classifyImmediate( char* imme, int lineNumber )
 	if( *imme == '0' )
 	{
 		imme++;
-		if(*imme == 'x' )
+		if(*imme == 'x' && strlen(imme)>1 )
 		{
+			imme++;
 			while(*imme!='\0')
 				if( !VALID_HEX(*imme) )
 				{

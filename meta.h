@@ -3,6 +3,11 @@
 
 /*---------Useful Constant---------*/
 
+/* Hardware specific constant */
+#define ADDR_SIZE 2
+#define CODE_SIZE 4
+
+
 #define INSTRU_TABLE_SIZE 18
 #define MAX_INSTRU_LEN  5
 #define MAX_SYMBOL_LEN 20
@@ -20,8 +25,9 @@ typedef struct Token_struct
 typedef struct Tokens_list_struct 
 {
 	int type;
-	Opr* first_opr;
+	Opr* oprs;
 	int addr;
+	int lineNumber;
 	struct Tokens_list_struct* next ;
 } Instru_list;
 typedef struct Symbols_table_struct
@@ -60,13 +66,13 @@ extern int ErrorCount;
 enum 
 {
 	TK_SYMBOL,
-	TK_INST,
 	TK_REG,
 	TK_MEM,
 	TK_HEX,
 	TK_DEC,
 	TK_UNIN_IMME,
 	TK_NON_IMME,
+	TK_VAR_OR_SYM;
 	TK_ERROR
 };
 enum

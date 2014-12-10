@@ -56,3 +56,22 @@ Strings_list* tokenize( char* line , char* delim )
 	return list;
 }
 
+char* formatHEX(char* hex,int size)
+{
+	char *formatted_hex = (char*)malloc( size + 1 );
+	char *strippedHEX = strchr(hex,'x')+1;
+	int offset = size - strlen(strippedHEX);
+	memset(formatted_hex,'0',offset);
+	strcpy(formatted_hex+offset,strippedHEX);
+	return formatted_hex;
+}
+char* DECtoHEX(char* dec,int size)
+{
+	int decimal;
+	sscanf(dec,"%d",decimal);
+
+	char *formatted_hex = (char*)malloc( size + 1 );
+	#define FORMAT(size) "%0" size "x"
+	sprintf(formatted_hex,FORMAT(size),decimal);
+	return formatted_hex;
+}
