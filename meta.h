@@ -34,7 +34,6 @@ typedef struct Variable_table_struct
 {
 	char* var;
 	char* value;
-	int type;
 	int addr;
 	struct Variable_table_struct* next ;
 } Variable_table ;
@@ -59,7 +58,7 @@ extern int ErrorCount;
 
 enum 
 {
-	TK_SYMBOL,
+	TK_LITERAL,
 	TK_INST,
 	TK_REG,
 	TK_MEM,

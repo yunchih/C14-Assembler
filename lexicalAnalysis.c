@@ -47,19 +47,25 @@ void lexical_analysis(
 		else if(*(str_list->str) == '.')
 		{
 			setMode( &MODE, str_list );
+			continue;
 		}
 		/* match variable */
 		else if( MODE == DATA )
 		{
 			setVar( var_table, str_list );
+			continue;
 		}
 		/* match label */
 		else if(  *( str_list->str + strlen( str_list->str ) - 1 ) == ':' )	
 		{
 			setLabel( s_table, IC, str_list );
+
+			if( str_list->next == NULL )
+				continue;
 		}
+
 		/* match instruction */
-		else if( MODE == CODE && ( typeOfInstr = classifyInstruction( str_list->str ) ) != ERROR )
+		if( MODE == CODE && ( typeOfInstr = classifyInstruction( str_list->str ) ) != ERROR )
 		{
 			setInstruction( instru_list, typeOfInstr, IC, str_list );
 			/*
@@ -71,6 +77,7 @@ void lexical_analysis(
 		else
 		{
 			printError( "invalid instruction.  Also, make sure you have .code before any instruction.",str_list->lineNumber);
+			exit(1);
 		}
 	}
 }

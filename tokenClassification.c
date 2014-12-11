@@ -26,7 +26,7 @@ void setVar(Variable_table** var_table,Strings_list* list)
 {
 
 	static Variable_table *cur_var_table,  *next_var_table ;
-	int typeOfImmediate;
+	int initilized;
 
 	if( !legalLiteral( list->str ) )
 		PrintErrReturn( "variable name contains invalid characters");
@@ -35,20 +35,12 @@ void setVar(Variable_table** var_table,Strings_list* list)
 	if( list->next == NULL || list->next->next != NULL )
 		PrintErrReturn( "make sure you have .code before any instruction");
 
-	if( *(list->str)  == '?')
-		typeOfImmediate = TK_UNIN_IMME ;
-	else
-		typeOfImmediate = classifyImmediate( list->next->str, list->lineNumber );
-	
-	if(typeOfImmediate == ERROR)
-		return;
-	if(typeOfImmediate == TK_NON_IMME)
-		PrintErrReturn( "make sure you have .code before any instruction");
-
+	if( !isImmediate( list->next->str ) )
+		PrintErrReturn( "Invalid value" );
+		
 	next_var_table = (Variable_table*)malloc( sizeof(Variable_table) );
 	strcpy( next_var_table->var , list->str );
 	next_var_table->value = list->next->str;
-	next_var_table->type = typeOfImmediate;
 	
 	if(*var_table == NULL)
 		*var_table = next_var_table;
@@ -128,9 +120,8 @@ int legalLiteral( char* p )
 int classifyToken( char* token,int lineNumber )
 {
 	/* match immediate */
-	int typeOfImmediate = classifyImmediate( token, lineNumber );
-	if( typeOfImmediate != TK_NON_IMME )
-		return typeOfImmediate;
+	if( isImmediate(token) )
+		return TK_IMME;
 
 	/* match memory */
 	if( *token == '[' )
@@ -143,7 +134,7 @@ int classifyToken( char* token,int lineNumber )
 		}
 		/* strip '[' and ']'  */
 		strncpy( token, token+1, n-2); 
-		return TK_MEM;
+		return classifyToken( token , lineNumber );
 	}
 	if( *token == ']' )
 	{
@@ -159,46 +150,21 @@ int classifyToken( char* token,int lineNumber )
 		PrintErr("invalid register name");
 	}
 
-}
-int classifyImmediate( char* imme, int lineNumber )
-{
-	/* match decimal 0 or hexidecimal number */
-	if( *imme == '0' )
-	{
-		imme++;
-		if(*imme == 'x' )
-		{
-			while(*imme!='\0')
-				if( !VALID_HEX(*imme) )
-				{
-					PrintErr("invalid hexadecimal immediate");
-					return ERROR;
-				}
-			return TK_HEX;
-		}
-		else if(*imme == '\0' )
-			return TK_DEC;
+	return TK_LITERAL;
 
-		PrintErr("invalid immediate or symbol");
-		return ERROR;
-	}
-	/* match decimal */
-	if( isdigit(*imme) || *imme == '-' )
-	{
-		if( *imme == '-' && !isdigit(*(imme+1)) )
-		{
-			PrintErr("invalid negative immediate");
-			return ERROR;
-		}
-		while(*(++imme)!='\0')
-			if(!isdigit(*imme))
-			{
-				PrintErr("invalid decimal immediate or symbol");
-				return ERROR;
-			}
-		return TK_DEC;
-	}
-	return TK_NON_IMME;
+}
+int isImmediate( char* imme )
+{
+	char* p;
+
+	strtol( imme , &p , 10 )
+	if( *p != '\0' ) return 0; 
+
+	strtol( imme , &p , 16 )
+	if( *p != '\0' ) return 0; 
+
+	return 1;
+
 }
 int classifyInstruction( char* token )
 {
