@@ -3,7 +3,7 @@
 
 /*---------Useful Constant---------*/
 
-#define INSTRU_TABLE_SIZE 18
+#define INSTRU_TABLE_SIZE 16
 #define MAX_INSTRU_LEN  5
 #define MAX_SYMBOL_LEN 20
 #define MAX_VAR_LEN 20
@@ -43,7 +43,7 @@ typedef struct
 	int op;
 	char name[ MAX_INSTRU_LEN ];
 	int len;
-	int fmt[3];
+	enum Format;
 }Instructions_table;
 
 /*---------Function Prototype---------*/

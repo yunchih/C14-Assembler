@@ -32,6 +32,10 @@ void write_instructions(
 	Symbols_table* s_table,
 	Variable_table* var_table,
 	int* LC){
+
+	MachineCode masks[ NumOfFields ];
+	initializeMask( masks );
+
 	while( instru_list!= NULL )		
 	{
 		

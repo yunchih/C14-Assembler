@@ -19,7 +19,9 @@ typedef struct
 	int NumberOfBit;
 } Field;
 
-enum { SourceT , SourceS , Dest , Opcode , Addr };
+enum FieldName { SourceT , SourceS , Dest , Opcode , Addr };
+
+enum Format { Format1 , Format2 };
 
 Field fields[] = 
 {
@@ -30,6 +32,18 @@ Field fields[] =
 	{ 0, NumberOfUnitPerAddr } /* Addr    */
 };
 
+enum FieldName format[] = 
+{
+	{ Opcode , Dest , SourceS , SourceT }, /* Format 1 */
+	{ Opcode , Dest , Addr } 			   /* Format 2 */
+}
+
 #define numOfFields  sizeof( fields ) / sizeof( Field )
+
+/*---------Function Prototype---------*/
+
+void initializeMask( MachineCode masks[] );
+void writeField( MachineCode *Machine , int pos , int value );
+
 
 #endif
