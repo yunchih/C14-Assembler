@@ -1,6 +1,8 @@
 #ifndef META_H
 #define META_H
 
+#include "bitsOperation.h"
+
 /*---------Useful Constant---------*/
 
 #define INSTRU_TABLE_SIZE 16
@@ -43,7 +45,7 @@ typedef struct
 	int op;
 	char name[ MAX_INSTRU_LEN ];
 	int len;
-	enum Format;
+	enum Format format;
 }Instructions_table;
 
 /*---------Function Prototype---------*/

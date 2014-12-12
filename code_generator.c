@@ -1,8 +1,6 @@
 #include<stdio.h>
 #include "code_generator.h"
-
-#include<stdio.h>
-#include "code_generator.h"
+#include "bitsOperation.h"
 
 void generate_code(
 	 FILE* out,
@@ -12,49 +10,76 @@ void generate_code(
 	
 	int IC = 0;	
 	
-	write_variable( out,var_table,&IC );
-	write_instructions( out,instru_list,s_table,var_table,&LC );	
+	/*
+	 * MachineCode masks[ NumOfFields ];
+	 * initializeMask( masks );
+	 */
+
+	write_variable( out, var_table, &IC, masks );
+	write_instructions( out, instru_list, s_table, var_table, &LC, masks );	
 }
-void write_variable( FILE* src, Variable_table* var_table,int* IC )
+static void write_variable( FILE* out, Variable_table* var_table, int* IC, MachineCode masks[] )
 {
 	while( var_table != NULL )	
 	{
 		var_table->addr = *LC;	
-		fwrite( LC, SizeOfAddr, 1, out );
+		writeField( out ,  DATA  , var_table->value );
 		*LC++;
 		var_table = var_table->next;
 	}
 }
 
-void write_instructions(
+static void write_instructions(
 	FILE* src,
 	Instru_list* instru_list,
 	Symbols_table* s_table,
 	Variable_table* var_table,
-	int* LC){
+	int* LC,
+	MachineCode masks[])
+{
 
-	MachineCode masks[ NumOfFields ];
-	initializeMask( masks );
 
-	while( instru_list!= NULL )		
+	while( instru_list != NULL )		
 	{
-		
-		int type = instru_list->type;	
-		char op = instructions_table[type].op;
-		char code[5] = "";
-		Opr oprs = instru_list->oprs;
+		Opr oprs = instru_list->first_opr;
 
-		for(int i = 0 ; i < instructions_table[type].len ; i++ )			
+		writeField( out , Opcode , instructions_table[ instru_list->type ].op )
+
+		writeField( out , Dest   , ToInt(oprs->token) )
+		
+		oprs = oprs->next ;	
+
+		if( oprs != NULL )
 		{
-			switch(oprs->type)
+
+			if( op.format == Format1 )
 			{
-				case TK_HEX:
-					char formatted = formatHEX(oprs->token,ADDR_SIZE);
-					strcat(code,
-				case TK_MEM:		
+				writeField( out , SourceS , ToInt(oprs->token) );
+
+				oprs = oprs->next ;	
+
+				if( oprs != NULL )
+					writeField( out , SourceT , ToInt(oprs->token) );
+			}
+			else
+			{
+				if( oprs->type == TK_LITERAL )
+				{
+
+				}
+				else
+				{
+					writeField( out , Addr , ToInt(oprs->token) );
+				}
 			}
 		}
-				
+		else
+		{
+			/* write 0 */
+		}
+	
+		instru_list = instru_list->next;
+		
 	}
 }
 

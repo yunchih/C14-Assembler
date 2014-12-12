@@ -40,7 +40,7 @@ void setVar(Variable_table** var_table,Strings_list* list)
 		
 	next_var_table = (Variable_table*)malloc( sizeof(Variable_table) );
 	strcpy( next_var_table->var , list->str );
-	next_var_table->value = list->next->str;
+	strcpy( next_var_table->value , list->next->str );
 	
 	if(*var_table == NULL)
 		*var_table = next_var_table;
@@ -84,7 +84,7 @@ void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings
 	while( list != NULL )
 	{
 		next_opr        = (Opr*)malloc( sizeof(Opr) );
-		next_opr->token = malloc( strlen( list->str ) );
+		next_opr->token = malloc( strlen( list->str )+1 );
 		strcpy( next_opr->token , list->str );
 		
 		int typeOfToken = classifyToken( list->str, list->lineNumber );
@@ -144,10 +144,11 @@ int classifyToken( char* token,int lineNumber )
 	/* match register */
 	if( *token == 'R' )
 	{
-		token++;
-		if(*(token+1) == '\0' && VALID_HEX(*token)  )
-			return TK_REG;
-		PrintErr("invalid register name");
+		if( !isImmediate(token+1) )
+			PrintErr("invalid register name");
+		/* Strip 'R' */
+		strcpy( token , token+1 );
+		return TK_REG;
 	}
 
 	return TK_LITERAL;
