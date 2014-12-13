@@ -21,10 +21,14 @@ Field fields[ numOfField ] =
 
 enum FieldName format[ numOfFormat ][ maxFieldNum ] = 
 {
-	{ Opcode , Dest , SourceS , SourceT , End }, /* Format 1 */
-	{ Opcode , Dest , Addr , End }, 			 /* Format 2 */
-	{ Opcode , Dest , SourceT , End },		     /* Format 3 */
-	{ Opcode , SourceT , End }				     /* Format 4 */
+/* Format 1 */
+	{ Opcode , Dest , SourceS , SourceT , End }, 
+/* Format 2 */
+	{ Opcode , Dest , Addr , End }, 			 
+/* Format 3 */
+	{ Opcode , Dest , SourceT , End },		     
+/* Format 4 */
+	{ Opcode , SourceT , End }				     
 };
 
 void writeField( FILE* out , enum FieldName name , int value )
