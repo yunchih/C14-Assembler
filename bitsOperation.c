@@ -1,15 +1,22 @@
 #include "bitsOperation.h"
 
+/* Field   | StartPos | Size */
+/* --------|----------|------*/
+/* Data    |    0     |  4   */
+/* SourceT |    0     |  1   */
+/* SourceS |    1     |  1   */
+/* Dest    |    2     |  1   */
+/* Opcode  |    3     |  1   */
+/* Addr    |    0     |  2   */
+
 Field fields[ numOfField ] = 
 {
-              /* Field   | StartPos | Size */
-			  /* --------|----------|------*/
-	{ 0, 4 }, /* Data    |    0     |  4   */
-	{ 0, 1 }, /* SourceT |    0     |  1   */
-	{ 1, 1 }, /* SourceS |    1     |  1   */
-	{ 2, 1 }, /* Dest    |    2     |  1   */
-	{ 3, 1 }, /* Opcode  |    3     |  1   */
-	{ 0, 2 }  /* Addr    |    0     |  2   */
+	{ 0, 4 }, 
+	{ 0, 1 }, 
+	{ 1, 1 }, 
+	{ 2, 1 }, 
+	{ 3, 1 }, 
+	{ 0, 2 }  
 };
 
 enum FieldName format[ numOfFormat ][ maxFieldNum ] = 
