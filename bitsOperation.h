@@ -1,6 +1,8 @@
 #ifndef BIT_OPERATION_H 
 #define BIT_OPERATION_H
 
+#include <stdio.h>
+
 /*---------Struct Declaration---------*/
 
 /*
@@ -12,7 +14,7 @@
  * respectively.  We fill the bundle with these, and output the bundle as soon as
  * it's filled.
  */
-typedef unsigned int MachineCode
+typedef unsigned int MachineCode ;
 
 typedef struct 
 {
@@ -27,34 +29,29 @@ typedef struct
 #define NumberOfUnitPerAddr NumberOfBitPerUnit / 2
 #define UnitPerBundle sizeof( MachineCode ) / NumberOfBitPerUnit
 
+/*---------Fields---------*/
+
+enum FieldName { Data , SourceT , SourceS , Dest , Opcode , Addr , End };
+
+#define numOfField 6
+
+extern Field fields[ numOfField ] ;
+
+
 /*---------Format---------*/
 
-enum FieldName { Data , SourceT , SourceS , Dest , Opcode , Addr };
+enum Format { Format1 , Format2 , Format3 , Format4 };
 
-enum Format { Format1 , Format2 };
+#define numOfFormat 4
+#define maxFieldNum 5
 
-Field fields[] = 
-{
-	{ 0, 4 }, /* Data    */
-	{ 0, 1 }, /* SourceT */
-	{ 1, 1 }, /* SourceS */
-	{ 2, 1 }, /* Dest    */
-	{ 3, 1 }, /* Opcode  */
-	{ 0, 2 } /* Addr    */
-};
+extern enum FieldName format[ numOfFormat ][ maxFieldNum ];
 
-enum FieldName format[2][] = 
-{
-	{ Opcode , Dest , SourceS , SourceT }, /* Format 1 */
-	{ Opcode , Dest , Addr } 			   /* Format 2 */
-}
-
-#define numOfFields  sizeof( fields ) / sizeof( Field )
 
 /*---------Function Prototype---------*/
 
 void initializeMask( MachineCode masks[] );
-void writeField( FILE* out , enum FieldName name , int pos , int value );
+void writeField( FILE* out , enum FieldName name , int value );
 
 
 #endif

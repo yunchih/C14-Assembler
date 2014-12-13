@@ -1,6 +1,10 @@
 #ifndef TOKEN_CLASSIFICATION_H
 #define TOKEN_CLASSIFICATION_H 
 
+#include<string.h>
+#include<ctype.h>
+#include<stdlib.h>
+
 #include "meta.h"
 #include "stringManipulation.h"
 
@@ -14,12 +18,13 @@ void setLabel( Symbols_table** s_table, int IC, Strings_list* list );
 
 void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings_list* list );
 
-int  legalLiteral( char* p );
-
 int  classifyInstruction( char* token );
 
-int  classifyToken( char* token,int lineNumber );
+static int  legalLiteral( char* p );
 
-int  classifyImmediate( char* imme, int lineNumber );
+static int  classifyToken( char* token,int lineNumber );
+
+static int  isImmediate( char* imme );
+
 
 #endif 

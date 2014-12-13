@@ -1,5 +1,3 @@
-#include<stdio.h>
-#include<string.h>
 #include "lexicalAnalysis.h"
 
 #define MAX_LINE_LEN 100

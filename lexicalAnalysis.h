@@ -1,6 +1,9 @@
 #ifndef LEXICAL_ANALYSIS_H
 #define LEXICAL_ANALYSIS_H
 
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
 #include "tokenClassification.h"
 #include "stringManipulation.h"
 #include "meta.h"

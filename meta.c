@@ -15,11 +15,11 @@ Instructions_table instructions_table[ INSTRU_TABLE_SIZE ] =
     { 0x7, "lda",   2, Format2 },
     { 0x8, "ld",    2, Format2 },
     { 0x9, "st",    2, Format2 },
-    { 0xA, "ldi",   2, Format1 },
-    { 0xB, "sti",   2, Format1 },
+    { 0xA, "ldi",   2, Format3 },
+    { 0xB, "sti",   2, Format3 },
     { 0xC, "bz",    2, Format2 },
     { 0xD, "bp",    2, Format2 },
-    { 0xE, "jr",    1, Format1 },
+    { 0xE, "jr",    1, Format4 },
     { 0xF, "jl",    2, Format2 },
 };
 void printError( char* errorMessage , int lineNumber )

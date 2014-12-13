@@ -61,6 +61,7 @@ extern int ErrorCount;
 enum 
 {
 	TK_LITERAL,
+	TK_IMME,
 	TK_INST,
 	TK_REG,
 	TK_MEM,

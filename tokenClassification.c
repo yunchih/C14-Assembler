@@ -1,6 +1,3 @@
-#include<string.h>
-#include<ctype.h>
-#include<stdlib.h>
 #include "tokenClassification.h"
 
 #define VALID_HEX(c) ( ( c >= 'A' && c <= 'F' ) ||  isdigit(c) )
@@ -110,14 +107,14 @@ void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings
 		cur_instru_list->next = next_instru_list;
 	cur_instru_list = next_instru_list;
 }
-int legalLiteral( char* p )
+static int legalLiteral( char* p )
 {
 	for( ; *p ; p++ )
 		if( !isalnum(*p) && *p != '_' )
 			return 0;
 	return 1;
 }
-int classifyToken( char* token,int lineNumber )
+static int classifyToken( char* token,int lineNumber )
 {
 	/* match immediate */
 	if( isImmediate(token) )
@@ -154,14 +151,14 @@ int classifyToken( char* token,int lineNumber )
 	return TK_LITERAL;
 
 }
-int isImmediate( char* imme )
+static int isImmediate( char* imme )
 {
 	char* p;
 
-	strtol( imme , &p , 10 )
+	strtol( imme , &p , 10 );
 	if( *p != '\0' ) return 0; 
 
-	strtol( imme , &p , 16 )
+	strtol( imme , &p , 16 );
 	if( *p != '\0' ) return 0; 
 
 	return 1;
