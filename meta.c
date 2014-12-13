@@ -1,4 +1,4 @@
-#include<stdio.h>
+#include <stdio.h>
 #include "meta.h"
 
 int ErrorCount;

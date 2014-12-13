@@ -1,6 +1,6 @@
-#include<ctype.h>
-#include<string.h>
-#include<stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
 #include "stringManipulation.h"
 
 int case_insensitive_cmp(char *a, char *b)
