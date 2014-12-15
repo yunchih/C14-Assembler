@@ -66,10 +66,6 @@ void lexical_analysis(
 		if( MODE == CODE && ( typeOfInstr = classifyInstruction( str_list->str ) ) != ERROR )
 		{
 			setInstruction( instru_list, typeOfInstr, IC, str_list );
-			/*
-			 * TODO:
-			 *     Reconsider how Instruction Counter should increment.	
-			 */
 			IC++;
 		}
 		else

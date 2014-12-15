@@ -62,26 +62,14 @@ enum
 {
 	TK_LITERAL,
 	TK_IMME,
-	TK_INST,
 	TK_REG,
-	TK_MEM,
-	TK_HEX,
-	TK_DEC,
 	TK_UNIN_IMME,
 	TK_NON_IMME,
 	TK_ERROR
-};
-enum
-{
-	ERR_INV_REG,
-	ERR_INV_IMM,
-	ERR_INV_SYMBOL
 };
 
 /*---------Mode---------*/
 
 enum { UNDEFINED , DATA , CODE } ;
-
-typedef enum FmtType { REG,MEM,CON } FmtType ;
 
 #endif

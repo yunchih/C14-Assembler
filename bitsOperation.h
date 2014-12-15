@@ -26,7 +26,6 @@ typedef struct
 
 #define NumberOfBit 16
 #define NumberOfBitPerUnit NumberOfBit / 4
-#define NumberOfUnitPerAddr NumberOfBitPerUnit / 2
 #define UnitPerBundle sizeof( MachineCode ) / NumberOfBitPerUnit
 
 /*---------Fields---------*/
@@ -36,7 +35,6 @@ enum FieldName { Data , SourceT , SourceS , Dest , Opcode , Addr , End };
 #define numOfField 6
 
 extern Field fields[ numOfField ] ;
-
 
 /*---------Format---------*/
 
