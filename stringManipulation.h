@@ -1,6 +1,8 @@
 #ifndef STRING_MANIPULATION_H
 #define STRING_MANIPULATION_H
 
+#include "meta.h"
+#include "debug.h"
 
 /*---------Struct declaration---------*/
 

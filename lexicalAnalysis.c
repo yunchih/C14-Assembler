@@ -14,7 +14,7 @@
  *     4. How IC should increment.
  */
 
-extern int ErrorCount ;
+int lineNumber;
 
 void lexical_analysis(  
 	 FILE* src, 
@@ -30,42 +30,72 @@ void lexical_analysis(
 	*s_table     = NULL;
 	*instru_list = NULL;
 	*var_table   = NULL;
-	str_list->lineNumber = 0;
-	ErrorCount = 0;
+	lineNumber = 0;
 	int typeOfInstr = 0 ;
 	
 	while( fgets ( line, MAX_LINE_LEN , src ) != NULL ){
-		str_list->lineNumber++;
+
+		lineNumber++;
+
 		str_list = tokenize( line, delim );
 
 		/* blank line or line with comment only */
 		if( str_list == NULL )
 			continue;
+
+	#ifdef DEBUG
+		log_info("Line %d : %s",lineNumber,line);
+		printStrList(str_list);
+	#endif
+
 		/* match directive */
-		else if(*(str_list->str) == '.')
+		if(*(str_list->str) == '.')
 		{
 			setMode( &MODE, str_list );
+			#ifdef DEBUG
+				log_info("Set mode: %s, %d",str_list->str,MODE);
+			#endif
 			continue;
 		}
 		/* match variable */
 		else if( MODE == DATA )
 		{
+			#ifdef DEBUG
+				log_info("Set variable %s",str_list->str);
+			#endif
+
 			setVar( var_table, str_list );
+
+			#ifdef DEBUG
+				printVarTable(*var_table);
+			#endif
 			continue;
 		}
 		/* match label */
 		else if(  *( str_list->str + strlen( str_list->str ) - 1 ) == ':' )	
 		{
+			#ifdef DEBUG
+				log_info("Set label: %s",str_list->str);
+			#endif
 			setLabel( s_table, IC, str_list );
 
 			if( str_list->next == NULL )
 				continue;
+			str_list = str_list->next;
 		}
 
 		/* match instruction */
 		if( MODE == CODE && ( typeOfInstr = classifyInstruction( str_list->str ) ) != ERROR )
 		{
+			#ifdef DEBUG
+				log_info("Set instruction: %s",str_list->str);
+			#endif
+
 			setInstruction( instru_list, typeOfInstr, IC, str_list );
+
+			#ifdef DEBUG
+				printInstructionList( *instru_list );
+			#endif
 			IC++;
 		}
 		else
@@ -73,5 +103,6 @@ void lexical_analysis(
 			printError( "invalid instruction.  Also, make sure you have .code before any instruction.",str_list->lineNumber);
 			exit(1);
 		}
+
 	}
 }

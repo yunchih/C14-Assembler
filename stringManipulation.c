@@ -22,7 +22,6 @@ Strings_list* tokenize( char* line , char* delim )
 	/* get the first token */
    	token = strtok( line, delim );
 	 
-	   
 	/*
 	 * Walk through other tokens
 	 *
@@ -55,4 +54,3 @@ Strings_list* tokenize( char* line , char* delim )
    	}
 	return list;
 }
-

@@ -2,6 +2,7 @@
 #define CODE_GENERATOR_H 
 
 #include "meta.h"
+#include "debug.h"
 
 #define ToInt( value ) ((int) strtol( value , NULL , 0 ) )
 

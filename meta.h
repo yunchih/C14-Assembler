@@ -6,6 +6,7 @@
 /*---------Useful Constant---------*/
 
 #define INSTRU_TABLE_SIZE 16
+#define MAX_TOKEN_LEN 30
 #define MAX_INSTRU_LEN  5
 #define MAX_SYMBOL_LEN 20
 #define MAX_VAR_LEN 20

@@ -7,6 +7,7 @@
 #include "tokenClassification.h"
 #include "stringManipulation.h"
 #include "meta.h"
+#include "debug.h"
 
 /*---------Function Prototype---------*/
 

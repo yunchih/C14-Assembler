@@ -4,7 +4,15 @@
 
 #define PrintErr(s)  printError( s , lineNumber )
 
-#define PrintErrReturn(s) do{ printError( s , list->lineNumber );return; } while(0)
+#define PrintErrReturn(s) do{ printError( s , lineNumber );return; } while(0)
+
+static int isImmediate( char* imme );
+	
+static int legalLiteral( char* p );
+
+static int classifyToken( char* token);
+
+extern int lineNumber;
 
 void setMode(int* MODE,Strings_list* list)
 {
@@ -36,6 +44,8 @@ void setVar(Variable_table** var_table,Strings_list* list)
 		PrintErrReturn( "Invalid value" );
 		
 	next_var_table = (Variable_table*)malloc( sizeof(Variable_table) );
+	next_var_table->var = malloc( strlen(list->str)+1 );
+	next_var_table->value = malloc( strlen(list->next->str)+1 );
 	strcpy( next_var_table->var , list->str );
 	strcpy( next_var_table->value , list->next->str );
 	
@@ -80,11 +90,14 @@ void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings
 	list = list->next ;
 	while( list != NULL )
 	{
+		#ifdef DEBUG
+			/* log_info("Current token: %s",list->str); */
+		#endif
 		next_opr        = (Opr*)malloc( sizeof(Opr) );
 		next_opr->token = malloc( strlen( list->str )+1 );
 		strcpy( next_opr->token , list->str );
 		
-		int typeOfToken = classifyToken( list->str, list->lineNumber );
+		int typeOfToken = classifyToken( list->str );
 		if( typeOfToken == ERROR ) 
 			 return;	 
 		else
@@ -95,7 +108,7 @@ void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings
 		else
 			cur_opr->next = next_opr;
 		cur_opr = next_opr;
-
+		list = list->next;
 	}	
 	next_instru_list            = (Instru_list*)malloc( sizeof(Instru_list) );
 	next_instru_list->type      = typeOfInstr;
@@ -109,12 +122,12 @@ void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings
 }
 static int legalLiteral( char* p )
 {
-	for( ; *p ; p++ )
+	for( ; *p != ':' && *p ; p++ )
 		if( !isalnum(*p) && *p != '_' )
 			return 0;
 	return 1;
 }
-static int classifyToken( char* token,int lineNumber )
+static int classifyToken( char* token )
 {
 	/* match immediate */
 	if( isImmediate(token) )
@@ -131,7 +144,7 @@ static int classifyToken( char* token,int lineNumber )
 		}
 		/* strip '[' and ']'  */
 		strncpy( token, token+1, n-2); 
-		return classifyToken( token , lineNumber );
+		return classifyToken( token );
 	}
 	if( *token == ']' )
 	{
@@ -153,15 +166,11 @@ static int classifyToken( char* token,int lineNumber )
 }
 static int isImmediate( char* imme )
 {
-	char* p;
-
-	strtol( imme , &p , 10 );
-	if( *p != '\0' ) return 0; 
-
-	strtol( imme , &p , 16 );
-	if( *p != '\0' ) return 0; 
-
-	return 1;
+	char *p10,*p16;
+	strtol( imme , &p10 , 10 );
+	strtol( imme , &p16 , 16 );
+	if( *p10 == '\0' || *p16 == '\0' ) return 1; 
+	else return 0;
 
 }
 int classifyInstruction( char* token )
@@ -172,4 +181,21 @@ int classifyInstruction( char* token )
 			return i;
 	return ERROR;
 }
-
+Test( isImmediate )
+{
+	char test[3][10] = 
+	{
+		"0x00F","1234","0xFF"
+	};
+	for (int i = 0; i < 3; ++i)
+	{
+		log_info("assert %s",test[i]);
+		assert( isImmediate( test[i] ) );		
+	}
+}
+Test( classifyInstruction )
+{
+	assert( classifyInstruction("add") != ERROR );
+	assert( classifyInstruction("bz") != ERROR );
+	assert( classifyInstruction("abc") == ERROR );
+}

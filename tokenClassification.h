@@ -7,6 +7,8 @@
 
 #include "meta.h"
 #include "stringManipulation.h"
+#include "debug.h"
+
 
 /*---------Function Prototype---------*/ 
 
@@ -19,12 +21,5 @@ void setLabel( Symbols_table** s_table, int IC, Strings_list* list );
 void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings_list* list );
 
 int  classifyInstruction( char* token );
-
-static int  legalLiteral( char* p );
-
-static int  classifyToken( char* token,int lineNumber );
-
-static int  isImmediate( char* imme );
-
 
 #endif 
