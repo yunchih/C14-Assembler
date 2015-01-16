@@ -6,6 +6,37 @@
 #include "bitsOperation.h"
 #include "lexicalAnalysis.h"
 #include "debug.h"
+void binaryDump( char* fileName ){
+	FILE* file = fopen(fileName,"rb");
+	assert( file != NULL );
+	int c,cnt = 0;
+
+	printf("Dumping %s ---->\n",fileName);
+	printf(" %04X : ",cnt*8);
+	while( ( c = fgetc(file) ) != EOF ){
+		printf("%02X ",c);
+		cnt++;
+		if( cnt % 4 == 0 ){
+			putchar('\n');
+			printf(" %04X : ",cnt*8);
+		}
+	}
+	putchar('\n');
+	fclose(file);
+}
+void printSymbolList( Symbols_table* table ){
+	if( table == NULL )
+	{
+		puts("Table is null");
+		return;
+	}
+	while( table != NULL )
+	{
+		printf("symbol: %s,addr: %d |  ",table->symbol,table->addr);
+		table = table->next;
+	}
+	puts("");
+}
 void printInstructionList( Instru_list* list )
 {
 	if( list == NULL )
@@ -15,7 +46,7 @@ void printInstructionList( Instru_list* list )
 	}
 	while( list != NULL )
 	{
-		printf("type: %d , addr: %d  ",list->type,list->addr);
+		printf("type: %d , addr: %d  |",list->type,list->addr);
 		Opr* oprs = list->first_opr;
 		while( oprs != NULL )
 		{
@@ -100,10 +131,14 @@ Test( LexicalAnalysis )
 	Symbols_table*  s_table;
 	Variable_table* var_table;
     Instru_list*    instru_list;
-	FILE* testfile;
+	FILE *testfile,*out;
 
-	testfile = fopen("testfile2.asm","r");
+	testfile = fopen("testfile3.asm","r");
 	lexical_analysis( testfile, &instru_list, &s_table, &var_table );
+	out = fopen("test.out","wb");
+	generate_code( out, instru_list, s_table, var_table );
+	fclose(out);
+	binaryDump("test.out");
 }
 int main(void)
 {

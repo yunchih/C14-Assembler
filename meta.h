@@ -5,7 +5,6 @@
 
 /*---------Useful Constant---------*/
 
-#define INSTRU_TABLE_SIZE 16
 #define MAX_TOKEN_LEN 30
 #define MAX_INSTRU_LEN  5
 #define MAX_SYMBOL_LEN 20
@@ -38,6 +37,7 @@ typedef struct Variable_table_struct
 	char* var;
 	char* value;
 	int addr;
+	short size;
 	struct Variable_table_struct* next ;
 } Variable_table ;
 
@@ -55,15 +55,20 @@ void printError( char* errorMessage , int lineNumber );
 
 /*---------Global Variable---------*/
 
-extern Instructions_table instructions_table[ INSTRU_TABLE_SIZE ]; 
+extern Instructions_table instructions_table[]; 
 
 extern int ErrorCount;
+
+extern int instructions_table_size;
 
 enum 
 {
 	TK_LITERAL,
+	TK_VAR,
+	TK_CONST,
 	TK_IMME,
 	TK_REG,
+	TK_MEM,
 	TK_UNIN_IMME,
 	TK_NON_IMME,
 	TK_ERROR
@@ -72,5 +77,6 @@ enum
 /*---------Mode---------*/
 
 enum { UNDEFINED , DATA , CODE } ;
+
 
 #endif

@@ -14,7 +14,7 @@
  * respectively.  We fill the bundle with these, and output the bundle as soon as
  * it's filled.
  */
-typedef unsigned int MachineCode ;
+typedef unsigned int MachineCode;
 
 typedef struct 
 {
@@ -23,24 +23,42 @@ typedef struct
 } Field;
 
 /*---------Bit field constants---------*/
-
-#define NumberOfBit 16
-#define NumberOfBitPerUnit NumberOfBit / 4
-#define UnitPerBundle sizeof( MachineCode ) / NumberOfBitPerUnit
+#define SizeOfByte 8
+#define SizeOfWord 16
+#define SizeOfDWord 32
+#define SizeOfInstruction SizeOfDWord
+#define NumberOfBitPerUnit ( SizeOfInstruction / 4 )
+#define SizeOfMachineCode ( sizeof( MachineCode )* SizeOfByte )
+#define UnitPerBundle ( SizeOfMachineCode / NumberOfBitPerUnit )
 
 /*---------Fields---------*/
 
-enum FieldName { Data , SourceT , SourceS , Dest , Opcode , Addr , End };
+enum FieldName { Data , Empty , SourceT , SourceS , Dest , Opcode , Addr , End };
 
-#define numOfField 6
+/* Number of FieldName ( excluding the dummy constant 'End' ) */
+#define numOfField 7
 
 extern Field fields[ numOfField ] ;
 
 /*---------Format---------*/
 
-enum Format { Format1 , Format2 , Format3 , Format4 };
+enum Format { Format1,Format2,Format3,Format4,Format5 };
+#define numOfFormat 5
 
-#define numOfFormat 4
+/*
+ * enum Format { 
+ *     Format1,
+ *     Format1_1,
+ *     Format2,
+ *     Format2_1,
+ *     Format3,
+ *     Format4,
+ *     Format4_1
+ * };
+ * 
+ * #define numOfFormat 8
+ *
+ */
 #define maxFieldNum 5
 
 extern enum FieldName format[ numOfFormat ][ maxFieldNum ];

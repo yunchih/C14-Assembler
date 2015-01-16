@@ -10,7 +10,7 @@ typedef struct Strings_list_struct
 {
 	char* str;
 	struct Strings_list_struct* next ;
-	int lineNumber;
+	// int lineNumber;
 } Strings_list;
 
 /*---------Function Prototype---------*/

@@ -4,8 +4,6 @@
 #include "meta.h"
 #include "debug.h"
 
-#define ToInt( value ) ((int) strtol( value , NULL , 0 ) )
-
 /*---------Function Prototype---------*/
 
 void generate_code(FILE* out, Instru_list* instru_list, Symbols_table* s_table, Variable_table* var_table );

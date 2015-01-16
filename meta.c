@@ -3,9 +3,10 @@
 
 int ErrorCount;
 
-Instructions_table instructions_table[ INSTRU_TABLE_SIZE ] = 
+Instructions_table instructions_table[] = 
 {
-    { 0x0, "hlt",   0, Format1 }, 
+	/* Opcode , Name , NumberOfFields , Format */
+    { 0x0, "hlt",   0, Format5 }, 
     { 0x1, "add",   3, Format1 },
     { 0x2, "sub",   3, Format1 },
     { 0x3, "and",   3, Format1 },
@@ -22,6 +23,9 @@ Instructions_table instructions_table[ INSTRU_TABLE_SIZE ] =
     { 0xE, "jr",    1, Format4 },
     { 0xF, "jl",    2, Format2 },
 };
+
+int instructions_table_size = sizeof( instructions_table ) / sizeof( Instructions_table );
+
 void printError( char* errorMessage , int lineNumber )
 {
 	ErrorCount++;

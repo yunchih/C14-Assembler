@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 #include "code_generator.h"
 #include "bitsOperation.h"
+
+static int ToInt( char* value );
 
 void generate_code(
 	 FILE* out,
@@ -21,8 +24,25 @@ static void write_variable( FILE* out, Variable_table* var_table, int* IC )
 	while( var_table != NULL )	
 	{
 		var_table->addr = *IC;	
-		writeField( out ,  Data  , ToInt(var_table->value) );
-		*IC++;
+		int  value = ToInt(var_table->value);
+		#ifdef DEBUG
+			log_info("Write %s : %d  addr = %d",var_table->var,value,*IC);
+			log_info("Size: %d",var_table->size / SizeOfByte);
+		#endif
+		int numberOfByte = var_table->size / SizeOfByte;
+		#define SizeOfInt 4
+		if( numberOfByte > SizeOfInt )
+		{
+			while( numberOfByte > 0 )
+			{
+				fwrite( &value, SizeOfInt , 1, out );
+				numberOfByte -= SizeOfInt;
+			}
+		}
+		else
+			fwrite( &value, numberOfByte , 1, out );
+
+		(*IC) += var_table->size;
 		var_table = var_table->next;
 	}
 }
@@ -41,10 +61,23 @@ static void write_instructions(
 		Opr* oprs = instru_list->first_opr;
 		Instructions_table op = instructions_table[ instru_list->type ];
 
+		#ifdef DEBUG
+			log_info("Op --> %s",op.name);
+		#endif
 		writeField( out , Opcode , op.op );
 
-		for (int i = 1; format[ op.format ][ i ] != End ; i++ , oprs = oprs->next )
+		/* Start with 1 because Opcode has been written  */
+		for (int i = 1; format[ op.format ][ i ] != End ; i++ )
 		{
+			if( format[ op.format ][ i ] == Empty )
+			{
+				#ifdef DEBUG
+					log_info("Write Empty field");
+				#endif
+				writeField( out , Empty , 0 );
+				continue;
+			}
+
 			if( oprs == NULL )
 			{
 				printf("[ERROR] Invalid format\n");
@@ -65,11 +98,20 @@ static void write_instructions(
 					printf( "[ERROR] Symbol undefined: %s\n",oprs->token );
 					exit(1);
 				}
-
+				#ifdef DEBUG
+					log_info("Address to be written: %d",addr);
+				#endif
 				writeField( out , format[ op.format ][ i ] , addr );
 			}
-			else 
-				writeField( out , format[ op.format ][ i ] , ToInt(oprs->token) );
+			else {
+				int toBeWritten = ToInt(oprs->token);
+				#ifdef DEBUG
+					log_info("Numeric to be written: %d",toBeWritten);
+				#endif
+				writeField( out , format[ op.format ][ i ] , toBeWritten );
+			}
+
+			oprs = oprs->next;
 		}
 
 	
@@ -84,6 +126,9 @@ static int findVariable( char* token , int* addr , Variable_table* var_table )
 		if( strcmp( token , var_table->var ) == 0 )
 		{
 			*addr = var_table->addr;
+			#ifdef DEBUG
+				log_info("Variable found: %s addr = %d",var_table->var,var_table->addr );
+			#endif
 			return 1;
 		}
 		var_table = var_table->next;
@@ -97,10 +142,30 @@ static int findSymbol( char* token , int* addr , Symbols_table* s_table )
 		if( strcmp( token , s_table->symbol ) == 0 )
 		{
 			*addr = s_table->addr;
+			#ifdef DEBUG
+				log_info("Symbol found: %s",s_table->symbol);
+			#endif
 			return 1;
 		}
 		s_table = s_table->next;
 	}
 	return 0;
 }
+static int ToInt( char* value )
+{
+	if( !isdigit( *value ) )
+	{
+		char tmpHex[10] = "0x";
+		strcat( tmpHex , value );
+		return (int) strtol( value , NULL , 16 );
+	}
+		return (int) strtol( value , NULL , 0 );
+}
+/*
+ * static int evaluateExpression( char* expr )
+ * {
+ *     char* opPos;
+ *     opPos = strchr( mem , '*' ); 
+ * }
+ */
 

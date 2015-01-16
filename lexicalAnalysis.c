@@ -23,7 +23,7 @@ void lexical_analysis(
 	 Variable_table** var_table ){
 
 	char line[MAX_LINE_LEN];
-	int IC = 0 , MODE = UNDEFINED;
+	int IC = 0 , MODE = CODE;
 	char* delim = " \t\n,";
 
 	Strings_list   *str_list ;
@@ -57,6 +57,17 @@ void lexical_analysis(
 			#endif
 			continue;
 		}
+		/* match constant */
+		else if( isConstant( str_list->next ) )
+		{
+			if( str_list->next->next == NULL )
+				printError( "invalid constant declaration on line %d\n",lineNumber);
+			else 
+			{
+				str_list->next = str_list->next->next; /* strip EQU */
+				setConstant( var_table , str_list );
+			}
+		}
 		/* match variable */
 		else if( MODE == DATA )
 		{
@@ -78,7 +89,10 @@ void lexical_analysis(
 				log_info("Set label: %s",str_list->str);
 			#endif
 			setLabel( s_table, IC, str_list );
-
+			#ifdef DEBUG
+				log_info("print symbol table");
+				printSymbolList(*s_table);
+			#endif
 			if( str_list->next == NULL )
 				continue;
 			str_list = str_list->next;
@@ -96,11 +110,11 @@ void lexical_analysis(
 			#ifdef DEBUG
 				printInstructionList( *instru_list );
 			#endif
-			IC++;
+			IC += SizeOfInstruction ;
 		}
 		else
 		{
-			printError( "invalid instruction.  Also, make sure you have .code before any instruction.",str_list->lineNumber);
+			printError( "invalid instruction on line %d.  Also, make sure you have .code before any instruction.",lineNumber);
 			exit(1);
 		}
 

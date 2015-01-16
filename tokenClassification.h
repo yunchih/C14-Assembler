@@ -14,7 +14,9 @@
 
 void setMode( int* MODE,Strings_list* list);
 
-void setVar( Variable_table** var_table,Strings_list* list);
+void setVar( Variable_table** var_table,Strings_list* list );
+
+void setConstant(Variable_table** var_table,Strings_list* list );
 
 void setLabel( Symbols_table** s_table, int IC, Strings_list* list );
 

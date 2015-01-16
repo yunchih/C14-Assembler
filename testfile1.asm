@@ -3,6 +3,8 @@
 	var1 0x02
 	var2 10
 	var3 100
+	var4 ?
+	var5 ?
 .code
 
 start:
@@ -11,6 +13,8 @@ start:
 	ld R3, var3
 	jl RF, multiply
 	st RD, 0xFF
+	hlt
+multiply:
 	hlt
 
 	
