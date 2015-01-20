@@ -42,7 +42,9 @@ enum FieldName format[ numOfFormat ][ maxFieldNum ] =
 	{ Opcode , Empty , Addr , End }, 			 
 
 /* Format 7 */
-	{ Opcode , Empty , SourceS , SourceT , End } 			 
+	{ Opcode , Empty , SourceS , SourceT , End } 
+
+
 };
 
 int formatSize[ numOfFormat ] = {
