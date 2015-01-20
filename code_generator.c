@@ -14,7 +14,14 @@ void generate_code(
 	 Symbols_table*  s_table,
 	 Variable_table* var_table ){
 	
-	int IC = 0;	
+	int IC = 4;	
+	
+	/*
+	 * TODO
+	 * Write jump to code
+	 * 
+	 *
+	 */
 	
 	write_variable( out, var_table, &IC );
 	write_instructions( out, instru_list, s_table, var_table, IC );	
@@ -96,7 +103,7 @@ static void write_instructions(
 				log_err("Invalid format\n");
 				break;
 			}
-			if( oprs->type == TK_LITERAL )
+			if( oprs->type == TK_LITERAL || oprs->type == TK_MEM )
 			{
 				int addr = 0;
 
