@@ -72,7 +72,7 @@ void setVar( Variable_table** var_table,Strings_list* list )
 	char *name = list->str;
 	list = list->next;
 	char* size = NULL;
-	if( !isdigit(*(list->str)) && isInitialized(list->str) )
+	if( !isdigit(*(list->str)) )
 	{
 		size = list->str;
 		list = list->next;
@@ -200,6 +200,7 @@ static int getVarSize( char* size )
 		return SizeOfWord;
 	if( strcmp( size , "DD" ) == 0 )
 		return SizeOfDWord;
+	return 0;
 }
 static int legalLiteral( char* p )
 {

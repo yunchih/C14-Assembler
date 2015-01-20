@@ -7,6 +7,8 @@
 
 static int ToInt( char* value );
 void printFormat( int format );
+void reset_offset(FILE* out );
+void set_offset(FILE* out );
 
 void generate_code(
 	 FILE* out,
@@ -14,17 +16,17 @@ void generate_code(
 	 Symbols_table*  s_table,
 	 Variable_table* var_table ){
 	
-	int IC = 4;	
-	
-	/*
-	 * TODO
-	 * Write jump to code
-	 * 
-	 *
-	 */
-	
+	int IC = DataOffset;	
+
+	reset_offset( out );
+
+	set_offset( out );
+
 	write_variable( out, var_table, &IC );
-	write_instructions( out, instru_list, s_table, var_table, IC );	
+
+	reset_offset( out );
+
+	write_instructions( out, instru_list, s_table, var_table );	
 
 }
 static void write_variable( FILE* out, Variable_table* var_table, int* IC )
@@ -53,6 +55,7 @@ static void write_variable( FILE* out, Variable_table* var_table, int* IC )
 			else
 				fwrite( &value, numberOfByte , 1, out );
 
+
 			(*IC) += var_table->size;
 
 		}
@@ -64,8 +67,7 @@ static void write_instructions(
 	FILE* out,
 	Instru_list* instru_list,
 	Symbols_table* s_table,
-	Variable_table* var_table,
-    int IC )
+	Variable_table* var_table )
 {
 
 	Instructions_table firstop = instructions_table[ instru_list->type ];
@@ -103,7 +105,14 @@ static void write_instructions(
 				log_err("Invalid format\n");
 				break;
 			}
-			if( oprs->type == TK_LITERAL || oprs->type == TK_MEM )
+			if( oprs->type == TK_IMME || oprs->type == TK_REG )
+			{
+				#ifdef DEBUG
+					log_info("Numeric to be written: %d",ToInt(oprs->token));
+				#endif
+				writeField( out , format[ op.format ][ i ] , ToInt(oprs->token) );
+			}
+			else
 			{
 				int addr = 0;
 
@@ -111,23 +120,16 @@ static void write_instructions(
 				 * Because we write variable data first, we need to add an offset
 				 * to symbol address
 				 */
-				if( findSymbol( oprs->token , &addr , s_table ) )
-					addr += IC ;
-				else if( !findVariable( oprs->token , &addr , var_table ) )
+				if( !findSymbol( oprs->token , &addr , s_table ) &&
+		     		!findVariable( oprs->token , &addr , var_table ) )
 				{
 					printf( "[ERROR] Symbol undefined: %s\n",oprs->token );
 					exit(1);
 				}
 				#ifdef DEBUG
-					log_info("Address to be written: %d",addr);
+					log_info("Address to be written: %d",addr );
 				#endif
 				writeField( out , format[ op.format ][ i ] , addr );
-			}
-			else {
-				#ifdef DEBUG
-					log_info("Numeric to be written: %d",ToInt(oprs->token));
-				#endif
-				writeField( out , format[ op.format ][ i ] , ToInt(oprs->token) );
 			}
 
 			oprs = oprs->next;
@@ -144,7 +146,10 @@ static int findVariable( char* token , int* addr , Variable_table* var_table )
 	{
 		if( strcmp( token , var_table->var ) == 0 )
 		{
-			*addr = var_table->addr;
+			if( var_table->size == 0 ) /* constant */
+				*addr = ToInt(var_table->value);
+			else
+				*addr = var_table->addr;
 			#ifdef DEBUG
 				log_info("Variable found: %s addr = %d",var_table->var,var_table->addr );
 			#endif
@@ -180,6 +185,13 @@ static int ToInt( char* value )
 	}
 		return (int) strtol( value , NULL , 0 );
 }
+
+void reset_offset(FILE* out ){
+	rewind( out );
+}
+void set_offset(FILE* out){
+	fseek( out , DataOffset / SizeOfByte , SEEK_SET );
+}
 void printFormat( int format ){
 	printf("Format: ");
 	switch (format) {
@@ -200,6 +212,7 @@ void printFormat( int format ){
 			break;
 	}
 }
+
 /*
  * static int evaluateExpression( char* expr )
  * {

@@ -63,13 +63,12 @@ void lexical_analysis(
 		/* match constant */
 		else if( isConstant( str_list->next ) )
 		{
-			if( str_list->next->next == NULL )
-				printError( "invalid constant declaration on line %d\n",lineNumber);
-			else 
-			{
-				str_list->next = str_list->next->next; /* strip EQU */
-				setConstant( var_table , str_list );
-			}
+			/* str_list->next = str_list->next->next; [> strip EQU <] */
+			setVar( var_table , str_list );
+			#ifdef DEBUG
+				log_info("Set constant %s",str_list->str);
+			#endif
+			continue;
 		}
 		/* match variable */
 		else if( MODE == DATA )

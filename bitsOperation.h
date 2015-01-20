@@ -31,6 +31,9 @@ typedef struct
 #define SizeOfMachineCode ( sizeof( MachineCode )* SizeOfByte )
 #define UnitPerBundle ( SizeOfMachineCode / NumberOfBitPerUnit )
 
+// #define DataOffset 8000 [> In byte <]
+#define DataOffset 32000  /* In byte */
+
 /*---------Fields---------*/
 
 enum FieldName { Data , Empty , SourceT , SourceS , Dest , Opcode , Addr , End };
