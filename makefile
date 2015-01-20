@@ -1,9 +1,10 @@
-CFLAGS=	-DDEBUG	-std=c99	-g
+CFLAGS=	-std=c99	-g	-DDEBUG
 CC=gcc
 
 all:	assembler 
 
 assembler:	assembler.o	code_generator.o	lexicalAnalysis.o	bitsOperation.o	meta.o	stringManipulation.o	tokenClassification.o
+	gcc $(CFLAGS)	assembler.o	code_generator.o	lexicalAnalysis.o	bitsOperation.o	meta.o	stringManipulation.o	tokenClassification.o	-o	assembler	
 
 assembler.o: assembler.c	debug.h	unitTests.c
 	gcc	$(CFLAGS)	-c	assembler.c	-o	assembler.o
@@ -29,4 +30,6 @@ unitTest: unitTests.o	debug.h 	code_generator.o	lexicalAnalysis.o	bitsOperation.
 unitTests.o: unitTests.c	debug.h
 	gcc $(CFLAGS) unitTests.c	-c	-o	unitTests.o
 
+clean:
+	rm -f *.o
 
