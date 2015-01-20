@@ -24,4 +24,6 @@ void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings
 
 int  classifyInstruction( char* token );
 
+int isConstant( Strings_list* str );
+
 #endif 

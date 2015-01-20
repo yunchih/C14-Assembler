@@ -46,4 +46,12 @@
 
 #define check_debug(A, M, ...) if(!(A)) { debug(M, ##__VA_ARGS__); errno=0; goto error; }
 
+/*
+ * void printSymbolList( Symbols_table* table );
+ * 
+ * void printInstructionList( Instru_list* list );
+ * void printInstructionList( Instru_list* list );
+ * void printVarTable(Variable_table* table);
+ * void printStrList(Strings_list* list);
+ */
 #endif

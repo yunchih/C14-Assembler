@@ -6,6 +6,7 @@
 #include "bitsOperation.h"
 
 static int ToInt( char* value );
+void printFormat( int format );
 
 void generate_code(
 	 FILE* out,
@@ -23,26 +24,31 @@ static void write_variable( FILE* out, Variable_table* var_table, int* IC )
 {
 	while( var_table != NULL )	
 	{
-		var_table->addr = *IC;	
-		int  value = ToInt(var_table->value);
-		#ifdef DEBUG
-			log_info("Write %s : %d  addr = %d",var_table->var,value,*IC);
-			log_info("Size: %d",var_table->size / SizeOfByte);
-		#endif
-		int numberOfByte = var_table->size / SizeOfByte;
-		#define SizeOfInt 4
-		if( numberOfByte > SizeOfInt )
-		{
-			while( numberOfByte > 0 )
-			{
-				fwrite( &value, SizeOfInt , 1, out );
-				numberOfByte -= SizeOfInt;
-			}
-		}
-		else
-			fwrite( &value, numberOfByte , 1, out );
+		if( var_table->size > 0 ){
 
-		(*IC) += var_table->size;
+			var_table->addr = *IC;	
+			int  value = ToInt(var_table->value);
+			#ifdef DEBUG
+				log_info("Write %s : %d  addr = %d",var_table->var,value,*IC);
+				log_info("Size: %d",var_table->size / SizeOfByte);
+			#endif
+				
+			int numberOfByte = var_table->size / SizeOfByte;
+			#define SizeOfInt 4
+			if( numberOfByte > SizeOfInt )
+			{
+				while( numberOfByte > 0 )
+				{
+					fwrite( &value, SizeOfInt , 1, out );
+					numberOfByte -= SizeOfInt;
+				}
+			}
+			else
+				fwrite( &value, numberOfByte , 1, out );
+
+			(*IC) += var_table->size;
+
+		}
 		var_table = var_table->next;
 	}
 }
@@ -55,6 +61,10 @@ static void write_instructions(
     int IC )
 {
 
+	Instructions_table firstop = instructions_table[ instru_list->type ];
+	#ifdef DEBUG
+		log_info("First Op --> %s",firstop.name);
+	#endif
 
 	while( instru_list != NULL )		
 	{
@@ -69,6 +79,9 @@ static void write_instructions(
 		/* Start with 1 because Opcode has been written  */
 		for (int i = 1; format[ op.format ][ i ] != End ; i++ )
 		{
+			log_info("Format: %d",op.format+1);
+			printFormat( format[ op.format ][ i ] );
+
 			if( format[ op.format ][ i ] == Empty )
 			{
 				#ifdef DEBUG
@@ -80,7 +93,7 @@ static void write_instructions(
 
 			if( oprs == NULL )
 			{
-				printf("[ERROR] Invalid format\n");
+				log_err("Invalid format\n");
 				break;
 			}
 			if( oprs->type == TK_LITERAL )
@@ -104,11 +117,10 @@ static void write_instructions(
 				writeField( out , format[ op.format ][ i ] , addr );
 			}
 			else {
-				int toBeWritten = ToInt(oprs->token);
 				#ifdef DEBUG
-					log_info("Numeric to be written: %d",toBeWritten);
+					log_info("Numeric to be written: %d",ToInt(oprs->token));
 				#endif
-				writeField( out , format[ op.format ][ i ] , toBeWritten );
+				writeField( out , format[ op.format ][ i ] , ToInt(oprs->token) );
 			}
 
 			oprs = oprs->next;
@@ -160,6 +172,26 @@ static int ToInt( char* value )
 		return (int) strtol( value , NULL , 16 );
 	}
 		return (int) strtol( value , NULL , 0 );
+}
+void printFormat( int format ){
+	printf("Format: ");
+	switch (format) {
+		case Empty:
+			printf("Empty\n");	
+			break;
+		case Dest:
+			printf("Dest\n");	
+			break;
+		case SourceT:
+			printf("SourceT\n");	
+			break;
+		case SourceS:
+			printf("SourceS\n");	
+			break;
+		case Addr:
+			printf("Addr\n");	
+			break;
+	}
 }
 /*
  * static int evaluateExpression( char* expr )

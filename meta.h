@@ -45,7 +45,7 @@ typedef struct
 {
 	int op;
 	char name[ MAX_INSTRU_LEN ];
-	int len;
+	// int len;
 	enum Format format;
 }Instructions_table;
 

@@ -3,9 +3,9 @@
 #include "lexicalAnalysis.h"
 #include "code_generator.h"
 
-void file_init(FILE* src,const char *filename,char* type,char* message ){
-	src = malloc(sizeof(FILE));
-	if((src = fopen(filename,type))==NULL)
+void file_init(FILE** src,const char *filename,char* type,char* message ){
+	*src = malloc(sizeof(FILE));
+	if((*src = fopen(filename,type))==NULL)
 		printf("Fail to open %s",filename);
 	else
 		puts(message);
@@ -23,11 +23,20 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	file_init(src, argv[1],"r","start assembling....");
+	file_init(&src, argv[1],"r","start assembling....");
 	lexical_analysis( src, &instru_list, &s_table, &var_table );
 	fclose(src);
 
-	file_init(out,"a.out","wb","start writing code....");
+	#ifdef DEBUG
+		log_info("print variable table----->");
+		printVarTable(var_table);
+		log_info("print symbol table------->");
+		printSymbolList(s_table);
+		log_info("print instruction table----->");
+		printInstructionList( instru_list );
+	#endif
+
+	file_init(&out,"a.out","wb","start writing code....");
 	generate_code( out, instru_list, s_table, var_table );
 	fclose(out);
 

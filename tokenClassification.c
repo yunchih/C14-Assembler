@@ -4,11 +4,11 @@
 
 #define PrintErr(s)  printError( s , lineNumber )
 
-#define PrintErrReturn(s) do{ printError( s , lineNumber );return; } while(0)
+#define printErrorReturn(s) do{ printError( s , lineNumber );return; } while(0)
 
 static int isArray( char* value );
 
-static int getArraySize( char* value );
+static int setArrayInformation( char* value , int* arraySize );
 
 static int getVarSize( char* size ); 
 
@@ -22,31 +22,32 @@ static int classifyToken( char* token);
 
 extern int lineNumber;
 
-void setMode(int* MODE,Strings_list* list)
+void setMode(int* mode,Strings_list* list)
 {
 	
 	if( list->next != NULL )
-		PrintErrReturn("directive must not share the same line with other instructions");
+		printErrorReturn("directive must not share the same line with other instructions");
 
-	if( !case_insensitive_cmp( ".CODE",  list->str  ) )
-		*MODE = CODE ;
-	else if( !case_insensitive_cmp( ".DATA",  list->str  ) )
-		*MODE = DATA ;
+	if( !case_insensitive_cmp( ".code",  list->str  ) )
+		*mode = CODE ;
+	else if( !case_insensitive_cmp( ".data",  list->str  ) )
+		*mode = DATA ;
 	else
-		PrintErrReturn("mal-formed directive. Only .DATA and .CODE recognized");
+		printErrorReturn("mal-formed directive. only .data and .code recognized");
 }
 void setConstant(Variable_table** var_table,Strings_list* list )
 {
 	static Variable_table *cur_var_table,  *next_var_table ;
 
 	if( list->next == NULL || list->next->next == NULL )
-		PrintErrReturn( "invalid constant declaration");
+		printErrorReturn( "invalid constant declaration");
 
 	char *name = list->str;
 	list = list->next->next;
 	char *value = list->str;
 
 	next_var_table = (Variable_table*)malloc( sizeof(Variable_table) );
+	next_var_table->size = 0;
 	next_var_table->var = malloc( strlen(name)+1 );
 	strcpy( next_var_table->var , name );
 
@@ -57,7 +58,7 @@ void setConstant(Variable_table** var_table,Strings_list* list )
 		*var_table = next_var_table;
 	else
 		cur_var_table->next = next_var_table;
-
+	
 	cur_var_table = next_var_table;
 
 }
@@ -66,7 +67,7 @@ void setVar( Variable_table** var_table,Strings_list* list )
 	static Variable_table *cur_var_table,  *next_var_table ;
 
 	if( list->next == NULL )
-		PrintErrReturn( "invalid variable declaration");
+		printErrorReturn( "invalid variable declaration");
 
 	char *name = list->str;
 	list = list->next;
@@ -78,36 +79,30 @@ void setVar( Variable_table** var_table,Strings_list* list )
 	}
 	char *value = list->str;
 
-	next_var_table = (Variable_table*)malloc( sizeof(Variable_table) );
+	next_var_table       = (Variable_table*)malloc( sizeof(Variable_table) );
 	next_var_table->size = getVarSize(size);
-	next_var_table->var = malloc( strlen(name)+1 );
+	next_var_table->var  = malloc( strlen(name)+1 );
 	strcpy( next_var_table->var , name );
 
-	int checkArray = isArray( value );
+	int checkarray = isArray( value );
 	if( !isInitialized( value ) )
 		strcpy( value , "0" );
 
 	if( isArray( value ) )
 	{
-		#ifdef DEBUG
-			log_info("Dealing with array");
-		#endif
-		int arraySize = getArraySize( value );
-		#ifdef DEBUG
-			log_info("ArraySize: %d",arraySize);
+		int arraySize; 
+		int islegal = setArrayInformation( value , &arraySize );
+
+		#ifdef debug
+			log_info("arraySize: %d , value: %s",arraySize,value);
 		#endif
 
-		strcpy( value , "0" );
+		/* strcpy( value , "0" ); */
 
-		if( arraySize > 0 )
+		if( islegal )
 			next_var_table->size *= arraySize;
 		else
-			PrintErrReturn("Invalid array declaration");
-		/*
-		 *
-		 * Beware!  Remember to fill 0 
-		 *
-		 */
+			printErrorReturn("invalid array declaration");
 	}
 	next_var_table->value = malloc( strlen(value)+1 );
 	strcpy( next_var_table->value , value );
@@ -119,15 +114,13 @@ void setVar( Variable_table** var_table,Strings_list* list )
 
 	cur_var_table = next_var_table;
 }
-void setLabel( Symbols_table** s_table, int IC, Strings_list* list )
+void setLabel( Symbols_table** s_table, int ic, Strings_list* list )
 {
 	static Symbols_table  *cur_symbol,    *next_symbol   ;
 	int s_len = strlen( list->str ) ;
 
 	if( !legalLiteral( list->str ) )
-		PrintErrReturn("variable name contains invalid characters");
-	if( s_len > MAX_SYMBOL_LEN )
-		PrintErrReturn("symbol must contain no more than 20 characters");
+		printErrorReturn("variable name contains invalid characters");
 		
 	next_symbol = (Symbols_table*)malloc( sizeof(Symbols_table) );
 	// no need to plus one here because we will get rid of ':'
@@ -135,7 +128,7 @@ void setLabel( Symbols_table** s_table, int IC, Strings_list* list )
 
 	list->str[ s_len-1 ] = '\0'; // get rid of ':'
 	strcpy( next_symbol->symbol, list->str ); 
-	next_symbol->addr = IC ;
+	next_symbol->addr = ic ;
 
 	if(*s_table == NULL)
 		*s_table = next_symbol;
@@ -144,7 +137,7 @@ void setLabel( Symbols_table** s_table, int IC, Strings_list* list )
 
 	cur_symbol = next_symbol;
 }
-void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings_list* list )
+void setInstruction( Instru_list** instru_list, int typeofinstr, int ic, Strings_list* list )
 {
 	static Instru_list *cur_instru_list, *next_instru_list;
 	Opr *cur_opr, *next_opr ;
@@ -153,16 +146,13 @@ void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings
 	list = list->next ;
 	while( list != NULL )
 	{
-		#ifdef DEBUG
-			/* log_info("Current token: %s",list->str); */
-		#endif
 		next_opr        = (Opr*)malloc( sizeof(Opr) );
 		
-		int typeOfToken = classifyToken( list->str );
-		if( typeOfToken == ERROR ) 
+		int typeoftoken = classifyToken( list->str );
+		if( typeoftoken == ERROR ) 
 			 return;	 
 		else
-			next_opr->type = typeOfToken;
+			next_opr->type = typeoftoken;
 
 		next_opr->token = malloc( strlen( list->str )+1 );
 		strcpy( next_opr->token , list->str );
@@ -175,9 +165,9 @@ void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings
 		list = list->next;
 	}	
 	next_instru_list            = (Instru_list*)malloc( sizeof(Instru_list) );
-	next_instru_list->type      = typeOfInstr;
+	next_instru_list->type      = typeofinstr;
 	next_instru_list->first_opr = opr_list;
-	next_instru_list->addr      = IC;
+	next_instru_list->addr      = ic;
 	if(*instru_list == NULL)
 		*instru_list = next_instru_list;
 	else
@@ -186,13 +176,17 @@ void setInstruction( Instru_list** instru_list, int typeOfInstr, int IC, Strings
 }
 static int isArray( char* value )
 {
-	return strncmp( "DUP",value,3 ) == 0;
+	return strncmp( "dup",value,3 ) == 0;
 }
-static int getArraySize( char* value )
+static int setArrayInformation( char* value , int* arraySize )
 {
-	int size;
-	if( sscanf( value , "DUP(%d)", &size ) )
-		return size;
+	char* tmp = malloc( strlen(value) );
+
+	if( sscanf( value , "DUP(%d,%s)", arraySize,tmp) == 2 ){
+		strcpy( value , tmp );	
+		free(tmp);
+		return 1;
+	}
 	else
 		return 0;
 }
@@ -200,11 +194,11 @@ static int getVarSize( char* size )
 {
 	if( size == NULL )
 		return SizeOfWord;
-	if( strcmp( size , "BYTE" ) == 0 )
+	if( strcmp( size , "DB" ) == 0 )
 		return SizeOfByte;
-	if( strcmp( size , "WORD" ) == 0 )
+	if( strcmp( size , "DW" ) == 0 )
 		return SizeOfWord;
-	if( strcmp( size , "DWORD" ) == 0 )
+	if( strcmp( size , "DD" ) == 0 )
 		return SizeOfDWord;
 }
 static int legalLiteral( char* p )
@@ -299,10 +293,4 @@ Test( isImmediate )
 		log_info("assert %s",test[i]);
 		assert( isImmediate( test[i] ) );		
 	}
-}
-Test( classifyInstruction )
-{
-	assert( classifyInstruction("add") != ERROR );
-	assert( classifyInstruction("bz") != ERROR );
-	assert( classifyInstruction("abc") == ERROR );
 }

@@ -30,13 +30,36 @@ enum FieldName format[ numOfFormat ][ maxFieldNum ] =
 	{ Opcode , Dest , Addr , End }, 			 
 
 /* Format 3 */
-	{ Opcode , Empty , Dest , SourceT , End },		     
+	{ Opcode , Dest , Empty , SourceT , End },		     
 
 /* Format 4 */
 	{ Opcode , Empty , Empty , SourceT , End },
 
 /* Format 5 */
-	{ Opcode , Empty , Empty , Empty , End }
+	{ Opcode , Empty , Empty , Empty , End },
+
+/* Format 6 */
+	{ Opcode , Empty , Addr , End }, 			 
+
+/* Format 7 */
+	{ Opcode , Empty , SourceS , SourceT , End } 			 
+};
+
+int formatSize[ numOfFormat ] = {
+/* Format 1 */ 
+	1 , 
+/* Format 2 */ 
+	1 , 
+/* Format 3 */ 
+	1 , 
+/* Format 4 */ 
+	1 , 
+/* Format 5 */ 
+	1 , 
+/* Format 6 */ 
+	1 , 
+/* Format 7 */ 
+	1 , 
 };
 
 void print_binary(int number);

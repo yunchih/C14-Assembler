@@ -4,6 +4,7 @@
 #include "stringManipulation.h"
 #include "tokenClassification.h"
 #include "bitsOperation.h"
+#include "code_generator.h"
 #include "lexicalAnalysis.h"
 #include "debug.h"
 void binaryDump( char* fileName ){
@@ -30,10 +31,13 @@ void printSymbolList( Symbols_table* table ){
 		puts("Table is null");
 		return;
 	}
+	int cnt = 0;
 	while( table != NULL )
 	{
-		printf("symbol: %s,addr: %d |  ",table->symbol,table->addr);
+		cnt++;
+		printf("%15s: addr: %8d |  ",table->symbol,table->addr);
 		table = table->next;
+		if(cnt%3==0)putchar('\n');
 	}
 	puts("");
 }
@@ -65,10 +69,13 @@ void printVarTable(Variable_table* table)
 		puts("Table is null");
 		return;
 	}
+	int cnt=0;
 	while( table != NULL )
 	{
-		printf("var: %s,value: %s |  ",table->var,table->value);
+		cnt++;
+		printf("%15s: value: %10s |  ",table->var,table->value);
 		table = table->next;
+		if(cnt%3==0)putchar('\n');
 	}
 	puts("");
 }
@@ -112,41 +119,39 @@ Test(Tokenize)
 		assert( list == NULL );
 	}
 }
-Test(Case_insensitive_cmp)
-{
-	char *test1[3] = 
-	{
-		"abc","aBc","AB,C"
-	};
-	char *test2[3] = 
-	{
-		"Abc","ABC","ab,c"
-	};
-	for (int i = 0; i < 3; ++i)
-		assert( case_insensitive_cmp(test1[i],test2[i]) == 0 );
-}
-
-Test( LexicalAnalysis )
+void Test_LexicalAnalysis( char* filename )
 {
 	Symbols_table*  s_table;
 	Variable_table* var_table;
     Instru_list*    instru_list;
 	FILE *testfile,*out;
 
-	testfile = fopen("testfile3.asm","r");
+	testfile = fopen(filename,"r");
 	lexical_analysis( testfile, &instru_list, &s_table, &var_table );
 	out = fopen("test.out","wb");
+
+	#ifdef DEBUG
+		log_info("print variable table----->");
+		printVarTable(var_table);
+		log_info("print symbol table------->");
+		printSymbolList(s_table);
+		log_info("print instruction table----->");
+		printInstructionList( instru_list );
+	#endif
+
 	generate_code( out, instru_list, s_table, var_table );
 	fclose(out);
 	binaryDump("test.out");
 }
-int main(void)
+int main(int argc, char *argv[])
 {
 	TEST( Tokenize );
-	TEST( Case_insensitive_cmp );
-	TEST( isImmediate );
-	TEST( classifyInstruction );
-	TEST( LexicalAnalysis );
+	if (argc != 2) {
+		printf("Correct Usage: %s [filenname]\n", argv[0]);
+		exit(1);
+	}
+	Test_LexicalAnalysis( argv[1] );
+
 	return 0;
 }
 

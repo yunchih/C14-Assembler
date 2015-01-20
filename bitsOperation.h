@@ -42,23 +42,9 @@ extern Field fields[ numOfField ] ;
 
 /*---------Format---------*/
 
-enum Format { Format1,Format2,Format3,Format4,Format5 };
-#define numOfFormat 5
+enum Format { Format1,Format2,Format3,Format4,Format5,Format6,Format7 };
+#define numOfFormat 7
 
-/*
- * enum Format { 
- *     Format1,
- *     Format1_1,
- *     Format2,
- *     Format2_1,
- *     Format3,
- *     Format4,
- *     Format4_1
- * };
- * 
- * #define numOfFormat 8
- *
- */
 #define maxFieldNum 5
 
 extern enum FieldName format[ numOfFormat ][ maxFieldNum ];

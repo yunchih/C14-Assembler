@@ -1,4 +1,7 @@
 #include "lexicalAnalysis.h"
+#ifdef DEBUG
+	#include "debug.h"
+#endif
 
 #define MAX_LINE_LEN 100
 
@@ -45,7 +48,7 @@ void lexical_analysis(
 
 	#ifdef DEBUG
 		log_info("Line %d : %s",lineNumber,line);
-		printStrList(str_list);
+		/* printStrList(str_list); */
 	#endif
 
 		/* match directive */
@@ -77,9 +80,6 @@ void lexical_analysis(
 
 			setVar( var_table, str_list );
 
-			#ifdef DEBUG
-				printVarTable(*var_table);
-			#endif
 			continue;
 		}
 		/* match label */
@@ -89,10 +89,6 @@ void lexical_analysis(
 				log_info("Set label: %s",str_list->str);
 			#endif
 			setLabel( s_table, IC, str_list );
-			#ifdef DEBUG
-				log_info("print symbol table");
-				printSymbolList(*s_table);
-			#endif
 			if( str_list->next == NULL )
 				continue;
 			str_list = str_list->next;
@@ -107,14 +103,11 @@ void lexical_analysis(
 
 			setInstruction( instru_list, typeOfInstr, IC, str_list );
 
-			#ifdef DEBUG
-				printInstructionList( *instru_list );
-			#endif
 			IC += SizeOfInstruction ;
 		}
 		else
 		{
-			printError( "invalid instruction on line %d.  Also, make sure you have .code before any instruction.",lineNumber);
+			log_err( "invalid instruction on line %d.  Also, make sure you have .code before any instruction.",lineNumber);
 			exit(1);
 		}
 
