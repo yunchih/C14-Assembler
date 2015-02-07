@@ -3,4 +3,6 @@
 
 enum Pass { FIRST , SECOND };
 
+typedef unsigned long ObjectCode;
+
 #endif

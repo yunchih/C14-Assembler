@@ -1,7 +1,12 @@
 #ifndef INSTRUCTIONTABLE_H
 #define INSTRUCTIONTABLE_H 
 
-typedef map< string , int > Op_table;
-void initialize( Op_table *op_table );
+typedef std::map<std::string,int> Op_table;
+
+/* Global variable */
+extern Op_table op_table;
+
+/* Function prototype */
+void initialize_op_table();
 
 #endif

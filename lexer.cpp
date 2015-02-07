@@ -500,7 +500,7 @@ char *yytext;
 #include <cstdio>
 #include <cstdlib>
 #include <string>
-#include "phase1.hpp"
+#include "parser.hpp"
 using namespace std;
 
 #line 507 "lexer.cpp"
@@ -808,47 +808,47 @@ case 4:
 YY_RULE_SETUP
 #line 23 "lexer.l"
 { 
-							yylval.int_val = (int) strtol(&(yytext[1]), NULL, 16);
-							return REGISTER;
-						  }
+                            yylval.int_val = (int) strtol(&(yytext[1]), NULL, 16);
+                            return REGISTER;
+                          }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 28 "lexer.l"
 { 
-							yylval.int_val = (int) strtol(&(yytext[0]), NULL, 16);
-							return IMMEDIATE; 
-						  }
+                            yylval.int_val = (int) strtol(&(yytext[0]), NULL, 16);
+                            return IMMEDIATE; 
+                          }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 33 "lexer.l"
 { 
-							yylval.int_val = (int) strtol(&(yytext[0]), NULL, 10);
-							return IMMEDIATE; 
-						  }
+                            yylval.int_val = (int) strtol(&(yytext[0]), NULL, 10);
+                            return IMMEDIATE; 
+                          }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 38 "lexer.l"
 { 
-							/*
-							 * string *tmp = new string( yytext ); 
-							 * size_t dotPos = tmp->find(".");
-							 * size_t colonPos = tmp->find(";");
-							 * yylval.str_val = new string( tmp->substr( dotPos+1,colonPos-dotPos-1 ) ); [> Trim . and : <]
-							 */
-							yylval.str_val = new string( yytext );
-							return DIRECTIVE;
-						  }
+                            /*
+                             * string *tmp = new string( yytext ); 
+                             * size_t dotPos = tmp->find(".");
+                             * size_t colonPos = tmp->find(";");
+                             * yylval.str_val = new string( tmp->substr( dotPos+1,colonPos-dotPos-1 ) ); [> Trim . and : <]
+                             */
+                            yylval.str_val = new string( yytext );
+                            return DIRECTIVE;
+                          }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 49 "lexer.l"
 { 
-							yylval.str_val = new string( yytext );
-							return IDENTIFIER;
-						  }
+                            yylval.str_val = new string( yytext );
+                            return IDENTIFIER;
+                          }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP

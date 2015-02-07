@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string>
-#include "phase1.hpp"
+#include "parser.hpp"
 using namespace std;
 
 %}
