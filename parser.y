@@ -1,4 +1,5 @@
 %code requires {
+
     #include <cstdio>
     #include <cstdlib>
     #include <string>
@@ -10,6 +11,8 @@
 
     extern FILE* output_file;
     extern int yylex(void);
+    extern FILE *yyin;
+    extern FILE* out;
 
     void yyerror ( int IC , enum Pass pass, SymbolTable* table, const char *s); 
     void die(const char* msg );
@@ -21,19 +24,18 @@
 
 }
 %union {
-    int int_val;
     std::string* str_val;
     unsigned long ObjectCode;
 }
 
 %parse-param { int IC }{ enum Pass pass }{ SymbolTable* table }
 %start Program 
-%token <int_val> IMMEDIATE REGISTER 
-%token <str_val> IDENTIFIER DIRECTIVE
+%token <ObjectCode> IMMEDIATE REGISTER 
+%token <str_ptr>    IDENTIFIER 
 %type  <ObjectCode> Instruction
-%type  <int_val> Format1 Format2 Format3 Format4 Format5 
-%type  <int_val> Op Address Dest SourceS SourceT Memory 
-%type  <int_val> Size 
+%type  <ObjectCode> Format1 Format2 Format3 Format4 Format5 
+%type  <ObjectCode> Op Address Dest SourceS SourceT Memory 
+%type  <ObjectCode> Size 
 
 
 %%
@@ -43,7 +45,7 @@
     Lines:                Line; 
                         | Lines Line;
 
-    Line:                 DIRECTIVE;  
+    Line:                 Directive;  
                         | Label;
                         | ConstantDeclaration;
                         | VariableDeclaration { IC++; }
@@ -81,6 +83,8 @@
                             delete $1;
                           }
 
+    Directive:            "." IDENTIFIER ":" { }
+
     Label:                IDENTIFIER ":" {
                             if( pass == FIRST ) /* Do nothing on second pass */
                                 Table[ *$1 ] = new Symbol( IC );
@@ -108,36 +112,37 @@
     
     
     Op:                   IDENTIFIER {
-                            if( pass == SECOND ) {
-                                if( op_table.find( *$1 ) == op_table.end() )
-                                    die("Undefined instruction");
-                                else 
-                                    $$ = op_table[ *$1 ];
+                            if( pass == SECOND ){
+                                $$ = get_op( *$1 );
+                                $$ <<= SHIFT( Op );
                             }
                             else
-                                return 0;
+                                $$ = 0;
                             delete $1;
                           }
 
-    Memory:               "[" REGISTER "]" { $$ = $2; } 
-                        | "[" Address  "]" { $$ = $2; }
+    Memory:               "[" REGISTER "]" { $$ = $2 << SHIFT( ); } 
+                        | "[" Address  "]" { $$ = $2 << SHIFT( ); }
 
     Address:              IDENTIFIER /* Symbol */ {
                             if( pass == SECOND )  {
-                               if( table->find( *$1 ) == table->end() ) 
+                               if( table->find( *$1 ) == table->end() ) {
                                    die("Undefined symbol");
+                                   $$ = 0;   
+                               }
                                else
                                    $$ = (Table[ *$1 ])->eval();
+                               $$ <<= SHIFT( Address );
                             }
                             else
-                                return 0;
+                                $$ = 0;
                             delete $1;
                         }
                         | IMMEDIATE { $$ = $1; }    
 
-    Dest:                 REGISTER { $$ = $1; }
-    SourceS:              REGISTER { $$ = $1; }
-    SourceT:              REGISTER { $$ = $1; }
+    Dest:                 REGISTER { $$ = $1 << SHIFT( Dest ); }
+    SourceS:              REGISTER { $$ = $1 << SHIFT( SourceS ); }
+    SourceT:              REGISTER { $$ = $1 << SHIFT( SourceT ); }
 
     Size:                 IDENTIFIER { $$ = getSize(*$1); }
  
@@ -145,9 +150,19 @@
 %%
 
 int getSize( string name ){
-    if( name == "DW" ) return 4;
-    else if( name == "DD" ) return 8;
-    else die("Invalid size prefix" );
+    if( size_table.find( name ) == size_table.end() ){
+        die("Invalid size prefix" );
+        return 0;
+    }
+    else return size_table[ name ];
+}
+ObjectCode getOp( string op_name ){
+    if( op_table.find( op_name ) == op_table.end() ){
+        die("Undefined instruction");
+        return 0;
+    }
+    else 
+        return op_table[ op_name ];
 }
 
 void writeInstruction( ObjectCode code ){

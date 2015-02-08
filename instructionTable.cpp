@@ -1,5 +1,6 @@
 #include "instructionTable.hpp"
 Op_table op_table;
+Size_table size_table;
 void initialize_op_table(){
    op_table[  "INR" ] = 0x10;
    op_table[  "DCR" ] = 0x11;
@@ -87,3 +88,12 @@ void initialize_op_table(){
    op_table[   "OU" ] = 0x2B;
    op_table[  "HLT" ] = 0x1D;
 }
+void initialize_size_table(){
+    size_table[ "DW" ] = 4;
+    size_table[ "DD" ] = 8;
+}
+void initialize_table(){
+    initialize_op_table();
+    initialize_size_table();
+}
+

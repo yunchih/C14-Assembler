@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <string>
 #include "parser.hpp"
+#include "main.hpp"
 using namespace std;
 
 %}
@@ -21,33 +22,22 @@ using namespace std;
 ,                         ;  /* Ignore colon */
 
 R[0-9A-Fa-f]              { 
-                            yylval.int_val = (int) strtol(&(yytext[1]), NULL, 16);
+                            yylval.ObjectCode = (ObjectCode) strtol(&(yytext[1]), NULL, 16);
                             return REGISTER;
                           }
 
 0x[a-fA-F0-9]+            { 
-                            yylval.int_val = (int) strtol(&(yytext[0]), NULL, 16);
+                            yylval.ObjectCode = (ObjectCode) strtol(&(yytext[0]), NULL, 16);
                             return IMMEDIATE; 
                           }
 
 -?[0-9]+                  { 
-                            yylval.int_val = (int) strtol(&(yytext[0]), NULL, 10);
+                            yylval.ObjectCode = (ObjectCode) strtol(&(yytext[0]), NULL, 10);
                             return IMMEDIATE; 
                           }
 
-\.[a-zA-Z_0-9]+:          { 
-                            /*
-                             * string *tmp = new string( yytext ); 
-                             * size_t dotPos = tmp->find(".");
-                             * size_t colonPos = tmp->find(";");
-                             * yylval.str_val = new string( tmp->substr( dotPos+1,colonPos-dotPos-1 ) ); [> Trim . and : <]
-                             */
-                            yylval.str_val = new string( yytext );
-                            return DIRECTIVE;
-                          }
-
 [a-zA-Z_0-9]+             { 
-                            yylval.str_val = new string( yytext );
+                            yylval.str_ptr  = new string( yytext );
                             return IDENTIFIER;
                           }
 
