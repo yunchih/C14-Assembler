@@ -5,7 +5,9 @@
 #include <cstdlib>
 #include <string> 
 using namespace std; 
+
 extern int yyparse( int IC, enum Pass pass, SymbolTable* table );
+
 int main(int argc, char *argv[])
 {
     initialize_op_table();

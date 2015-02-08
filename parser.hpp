@@ -53,6 +53,7 @@ extern int yydebug;
 
     extern FILE* output_file;
     extern int yylex(void);
+
     void yyerror ( int IC , enum Pass pass, SymbolTable* table, const char *s); 
     void die(const char* msg );
     int getSize( string name );
@@ -62,7 +63,7 @@ extern int yydebug;
     #define Table (*table)
 
 
-#line 66 "parser.hpp" /* yacc.c:1909  */
+#line 67 "parser.hpp" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -81,13 +82,13 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 22 "parser.y" /* yacc.c:1909  */
+#line 23 "parser.y" /* yacc.c:1909  */
 
     int int_val;
     std::string* str_val;
     unsigned long ObjectCode;
 
-#line 91 "parser.hpp" /* yacc.c:1909  */
+#line 92 "parser.hpp" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

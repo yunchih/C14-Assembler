@@ -1,6 +1,9 @@
 #ifndef INSTRUCTIONTABLE_H
 #define INSTRUCTIONTABLE_H 
 
+#include <map>
+#include <string>
+
 typedef std::map<std::string,int> Op_table;
 
 /* Global variable */

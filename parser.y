@@ -10,6 +10,7 @@
 
     extern FILE* output_file;
     extern int yylex(void);
+
     void yyerror ( int IC , enum Pass pass, SymbolTable* table, const char *s); 
     void die(const char* msg );
     int getSize( string name );

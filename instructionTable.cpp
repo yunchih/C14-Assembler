@@ -1,4 +1,4 @@
-#include "instructionTable.h"
+#include "instructionTable.hpp"
 Op_table op_table;
 void initialize_op_table(){
    op_table[  "INR" ] = 0x10;

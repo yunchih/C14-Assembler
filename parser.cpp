@@ -106,6 +106,7 @@ extern int yydebug;
 
     extern FILE* output_file;
     extern int yylex(void);
+
     void yyerror ( int IC , enum Pass pass, SymbolTable* table, const char *s); 
     void die(const char* msg );
     int getSize( string name );
@@ -115,7 +116,7 @@ extern int yydebug;
     #define Table (*table)
 
 
-#line 119 "parser.cpp" /* yacc.c:355  */
+#line 120 "parser.cpp" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -134,13 +135,13 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 22 "parser.y" /* yacc.c:355  */
+#line 23 "parser.y" /* yacc.c:355  */
 
     int int_val;
     std::string* str_val;
     unsigned long ObjectCode;
 
-#line 144 "parser.cpp" /* yacc.c:355  */
+#line 145 "parser.cpp" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -155,7 +156,7 @@ int yyparse (int IC, enum Pass pass, SymbolTable* table);
 
 /* Copy the second part of user declarations.  */
 
-#line 159 "parser.cpp" /* yacc.c:358  */
+#line 160 "parser.cpp" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -454,10 +455,10 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    40,    40,    42,    43,    45,    46,    47,    48,    49,
-      55,    61,    68,    75,    83,    89,    90,    91,    92,    93,
-      96,    98,   100,   102,   103,   105,   109,   121,   122,   124,
-     135,   137,   138,   139,   141
+       0,    41,    41,    43,    44,    46,    47,    48,    49,    50,
+      56,    62,    69,    76,    84,    90,    91,    92,    93,    94,
+      97,    99,   101,   103,   104,   106,   110,   122,   123,   125,
+     136,   138,   139,   140,   142
 };
 #endif
 
@@ -1263,33 +1264,33 @@ yyreduce:
   switch (yyn)
     {
         case 8:
-#line 48 "parser.y" /* yacc.c:1646  */
+#line 49 "parser.y" /* yacc.c:1646  */
     { IC++; }
-#line 1269 "parser.cpp" /* yacc.c:1646  */
+#line 1270 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 49 "parser.y" /* yacc.c:1646  */
+#line 50 "parser.y" /* yacc.c:1646  */
     { 
                             if( pass == SECOND )
                                 writeInstruction((yyvsp[0].ObjectCode)); 
                             IC++; 
                           }
-#line 1279 "parser.cpp" /* yacc.c:1646  */
+#line 1280 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 55 "parser.y" /* yacc.c:1646  */
+#line 56 "parser.y" /* yacc.c:1646  */
     {
                             if( pass == FIRST ) /* Do nothing on second pass */
                                 Table[ *(yyvsp[-2].str_val) ] = new Constant( (yyvsp[0].int_val) ); 
                             delete (yyvsp[-2].str_val);
                           }
-#line 1289 "parser.cpp" /* yacc.c:1646  */
+#line 1290 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 61 "parser.y" /* yacc.c:1646  */
+#line 62 "parser.y" /* yacc.c:1646  */
     { 
                             if( pass == FIRST )
                                 Table[ *(yyvsp[-2].str_val) ] = new Variable( (yyvsp[-1].int_val) , (yyvsp[0].int_val) , IC , 1 );
@@ -1297,11 +1298,11 @@ yyreduce:
                                 writeVariable( Table[ *(yyvsp[-2].str_val) ] );
                             delete (yyvsp[-2].str_val);
                           }
-#line 1301 "parser.cpp" /* yacc.c:1646  */
+#line 1302 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 68 "parser.y" /* yacc.c:1646  */
+#line 69 "parser.y" /* yacc.c:1646  */
     { /* Uninitialized variable */
                             if( pass == FIRST )
                                 Table[ *(yyvsp[-2].str_val) ] = new Variable( (yyvsp[-1].int_val) , 0 , IC , 1 );
@@ -1309,11 +1310,11 @@ yyreduce:
                                 writeVariable( Table[ *(yyvsp[-2].str_val) ] );
                             delete (yyvsp[-2].str_val);
                           }
-#line 1313 "parser.cpp" /* yacc.c:1646  */
+#line 1314 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 75 "parser.y" /* yacc.c:1646  */
+#line 76 "parser.y" /* yacc.c:1646  */
     { /* Array declaration */
                             if( pass == FIRST )
                                 Table[ *(yyvsp[-6].str_val) ] = new Variable( (yyvsp[-5].int_val) , (yyvsp[-1].int_val) , IC , (yyvsp[-2].int_val) );
@@ -1321,87 +1322,87 @@ yyreduce:
                                 writeVariable( Table[ *(yyvsp[-6].str_val) ] );
                             delete (yyvsp[-6].str_val);
                           }
-#line 1325 "parser.cpp" /* yacc.c:1646  */
+#line 1326 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 83 "parser.y" /* yacc.c:1646  */
+#line 84 "parser.y" /* yacc.c:1646  */
     {
                             if( pass == FIRST ) /* Do nothing on second pass */
                                 Table[ *(yyvsp[-1].str_val) ] = new Symbol( IC );
                             delete (yyvsp[-1].str_val);
                           }
-#line 1335 "parser.cpp" /* yacc.c:1646  */
+#line 1336 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 89 "parser.y" /* yacc.c:1646  */
+#line 90 "parser.y" /* yacc.c:1646  */
     { (yyval.ObjectCode) = (yyvsp[0].int_val); }
-#line 1341 "parser.cpp" /* yacc.c:1646  */
+#line 1342 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 90 "parser.y" /* yacc.c:1646  */
+#line 91 "parser.y" /* yacc.c:1646  */
     { (yyval.ObjectCode) = (yyvsp[0].int_val); }
-#line 1347 "parser.cpp" /* yacc.c:1646  */
+#line 1348 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 91 "parser.y" /* yacc.c:1646  */
+#line 92 "parser.y" /* yacc.c:1646  */
     { (yyval.ObjectCode) = (yyvsp[0].int_val); }
-#line 1353 "parser.cpp" /* yacc.c:1646  */
+#line 1354 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 92 "parser.y" /* yacc.c:1646  */
+#line 93 "parser.y" /* yacc.c:1646  */
     { (yyval.ObjectCode) = (yyvsp[0].int_val); }
-#line 1359 "parser.cpp" /* yacc.c:1646  */
+#line 1360 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 93 "parser.y" /* yacc.c:1646  */
+#line 94 "parser.y" /* yacc.c:1646  */
     { (yyval.ObjectCode) = (yyvsp[0].int_val); }
-#line 1365 "parser.cpp" /* yacc.c:1646  */
+#line 1366 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 96 "parser.y" /* yacc.c:1646  */
+#line 97 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = (yyvsp[-6].int_val) + (yyvsp[-4].int_val) + (yyvsp[-2].int_val) + (yyvsp[0].int_val); }
-#line 1371 "parser.cpp" /* yacc.c:1646  */
+#line 1372 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 98 "parser.y" /* yacc.c:1646  */
+#line 99 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = (yyvsp[-4].int_val) + (yyvsp[-2].int_val) + (yyvsp[0].int_val); }
-#line 1377 "parser.cpp" /* yacc.c:1646  */
+#line 1378 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 100 "parser.y" /* yacc.c:1646  */
+#line 101 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = (yyvsp[-2].int_val) + (yyvsp[0].int_val); }
-#line 1383 "parser.cpp" /* yacc.c:1646  */
+#line 1384 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 102 "parser.y" /* yacc.c:1646  */
+#line 103 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = (yyvsp[-4].int_val) + (yyvsp[-2].int_val) + (yyvsp[0].int_val); }
-#line 1389 "parser.cpp" /* yacc.c:1646  */
+#line 1390 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 103 "parser.y" /* yacc.c:1646  */
+#line 104 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = (yyvsp[-4].int_val) + (yyvsp[-2].int_val) + (yyvsp[0].int_val); }
-#line 1395 "parser.cpp" /* yacc.c:1646  */
+#line 1396 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 105 "parser.y" /* yacc.c:1646  */
+#line 106 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = (yyvsp[-4].int_val) + (yyvsp[-2].int_val) + (yyvsp[0].int_val); }
-#line 1401 "parser.cpp" /* yacc.c:1646  */
+#line 1402 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 109 "parser.y" /* yacc.c:1646  */
+#line 110 "parser.y" /* yacc.c:1646  */
     {
                             if( pass == SECOND ) {
                                 if( op_table.find( *(yyvsp[0].str_val) ) == op_table.end() )
@@ -1413,23 +1414,23 @@ yyreduce:
                                 return 0;
                             delete (yyvsp[0].str_val);
                           }
-#line 1417 "parser.cpp" /* yacc.c:1646  */
+#line 1418 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 121 "parser.y" /* yacc.c:1646  */
+#line 122 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = (yyvsp[-1].int_val); }
-#line 1423 "parser.cpp" /* yacc.c:1646  */
+#line 1424 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 122 "parser.y" /* yacc.c:1646  */
+#line 123 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = (yyvsp[-1].int_val); }
-#line 1429 "parser.cpp" /* yacc.c:1646  */
+#line 1430 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 124 "parser.y" /* yacc.c:1646  */
+#line 125 "parser.y" /* yacc.c:1646  */
     {
                             if( pass == SECOND )  {
                                if( table->find( *(yyvsp[0].str_val) ) == table->end() ) 
@@ -1441,41 +1442,41 @@ yyreduce:
                                 return 0;
                             delete (yyvsp[0].str_val);
                         }
-#line 1445 "parser.cpp" /* yacc.c:1646  */
+#line 1446 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 135 "parser.y" /* yacc.c:1646  */
+#line 136 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = (yyvsp[0].int_val); }
-#line 1451 "parser.cpp" /* yacc.c:1646  */
+#line 1452 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 137 "parser.y" /* yacc.c:1646  */
+#line 138 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = (yyvsp[0].int_val); }
-#line 1457 "parser.cpp" /* yacc.c:1646  */
+#line 1458 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 138 "parser.y" /* yacc.c:1646  */
+#line 139 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = (yyvsp[0].int_val); }
-#line 1463 "parser.cpp" /* yacc.c:1646  */
+#line 1464 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 139 "parser.y" /* yacc.c:1646  */
+#line 140 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = (yyvsp[0].int_val); }
-#line 1469 "parser.cpp" /* yacc.c:1646  */
+#line 1470 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 141 "parser.y" /* yacc.c:1646  */
+#line 142 "parser.y" /* yacc.c:1646  */
     { (yyval.int_val) = getSize(*(yyvsp[0].str_val)); }
-#line 1475 "parser.cpp" /* yacc.c:1646  */
+#line 1476 "parser.cpp" /* yacc.c:1646  */
     break;
 
 
-#line 1479 "parser.cpp" /* yacc.c:1646  */
+#line 1480 "parser.cpp" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1703,13 +1704,21 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 144 "parser.y" /* yacc.c:1906  */
+#line 145 "parser.y" /* yacc.c:1906  */
 
 
 int getSize( string name ){
     if( name == "DW" ) return 4;
     else if( name == "DD" ) return 8;
     else die("Invalid size prefix" );
+}
+
+void writeInstruction( ObjectCode code ){
+
+}
+
+void writeVariable( Identifier* var ){
+
 }
 
 void die(const char * msg ){ 
@@ -1720,3 +1729,4 @@ void die(const char * msg ){
 void yyerror ( int IC , enum Pass pass, SymbolTable* table, const char *s) {
    fprintf (stderr, "%s\n", s);
  }
+

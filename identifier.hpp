@@ -6,7 +6,7 @@
 
 class Identifier{
     public:
-        int eval();
+        int eval(){}
 }; 
 class Symbol : public Identifier {
     public:
