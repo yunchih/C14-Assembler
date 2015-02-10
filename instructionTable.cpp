@@ -1,6 +1,7 @@
 #include "instructionTable.hpp"
 Op_table op_table;
 Size_table size_table;
+Shift_table shift_table;
 void initialize_op_table(){
    op_table[  "INR" ] = 0x10;
    op_table[  "DCR" ] = 0x11;
@@ -91,9 +92,18 @@ void initialize_op_table(){
 void initialize_size_table(){
     size_table[ "DW" ] = 4;
     size_table[ "DD" ] = 8;
+    size_table[ "DS" ] = 16;
+}
+void initialize_shift_table(){
+    shift_table[      "Op" ] =      Op_pos;
+    shift_table[ "Address" ] = Address_pos;
+    shift_table[    "Dest" ] =    Dest_pos;
+    shift_table[ "SourceS" ] = SourceS_pos;
+    shift_table[ "SourceT" ] = SourceT_pos;
 }
 void initialize_table(){
     initialize_op_table();
     initialize_size_table();
+    initialize_shift_table();
 }
 

@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
     initialize_input_file( argv[1] );
     initialize_output_file( argv[1] );
 
-    Int IC;
+    int IC;
     SymbolTable table;
 
     IC = 0;
@@ -41,7 +41,7 @@ void initialize_input_file( const char* filename ){
 void initialize_output_file( const char* filename ){
     
     const char* suffix = ".bin";
-    char* output = malloc( strlen(filename)+strlen(suffix)+1 );
+    char* output = (char*) malloc( strlen(filename)+strlen(suffix)+1 );
     strcpy( output , filename );
     strcat( output ,  suffix  ); 
 

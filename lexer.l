@@ -14,12 +14,13 @@ using namespace std;
 
 %%
 
+"EQU"                     { return T_EQU;             }
+"DUP"                     { return T_DUP;             }
+"??"                      { return T_DB_QuestionMark; }
+
+#[^\r\n]*(\r\n)           ;  /* Ignore comment */
 
 [ \t\n\r]+                ;  /* Ignore whitespace */
-
-#[^\r\n]*(\r\n) ;  /* Ignore comment */
-
-,                         ;  /* Ignore colon */
 
 R[0-9A-Fa-f]              { 
                             yylval.ObjectCode = (ObjectCode) strtol(&(yytext[1]), NULL, 16);

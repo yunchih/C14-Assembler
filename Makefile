@@ -24,6 +24,6 @@ assembler: $(OUT_OBJS)
 	g++ -o $@ $(OUT_OBJS) 
 
 clean:
-	rm -rf $(OBJDIR)/*.o parser.cpp parser.hpp lexer.cpp
+	rm -rf $(OBJDIR)/*.o parser.cpp parser.hpp lexer.cpp assembler
 
 
