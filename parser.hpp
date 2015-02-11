@@ -68,8 +68,7 @@ extern int yydebug;
     #define SHIFT( field ) shift_table[ #field ]
 
     extern int yylineno;
-    #define FORMAT( format ) cout<<YELLOW<<"On line "<<yylineno<<" Format: "<<#format<<RESET<<endl
-    #define SPLIT_LINE() printf("------------------------\n");
+    #define FORMAT( format ) cout<<YELLOW<<"On line "<<yylineno-1<<" Format: "<<#format<<RESET<<endl
 
 #ifdef YYERROR_VERBOSE
      #undef YYERROR_VERBOSE
@@ -81,6 +80,7 @@ extern int yydebug;
 #define YYERROR_VERBOSE 1
 #define YYDEBUG 1
 
+
 #line 85 "parser.hpp" /* yacc.c:1909  */
 
 /* Token type.  */
@@ -90,16 +90,21 @@ extern int yydebug;
   {
     IMMEDIATE = 258,
     REGISTER = 259,
-    IDENTIFIER = 260,
-    DIRECTIVE = 261,
-    LABEL = 262,
-    COMMENT = 263,
-    T_EQU = 264,
-    T_DB_QuestionMark = 265,
-    T_DUP = 266,
-    T_ENDL = 267,
-    T_EOF = 268,
-    NEW_LINE = 269
+    COMMENT = 260,
+    T_EQU = 261,
+    T_DB_QuestionMark = 262,
+    T_DUP = 263,
+    T_ENDL = 264,
+    T_EOF = 265,
+    NEW_LINE = 266,
+    COMMA = 267,
+    LeBraket = 268,
+    RiBraket = 269,
+    IDENTIFIER = 270,
+    DIRECTIVE = 271,
+    LABEL = 272,
+    OP = 273,
+    SIZE = 274
   };
 #endif
 
@@ -108,14 +113,14 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 41 "parser.y" /* yacc.c:1909  */
+#line 42 "parser.y" /* yacc.c:1909  */
 
     std::string* str_ptr;
     unsigned long ObjectCode;
     int token;
     int comment;
 
-#line 119 "parser.hpp" /* yacc.c:1909  */
+#line 124 "parser.hpp" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

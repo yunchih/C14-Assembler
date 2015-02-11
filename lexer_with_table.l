@@ -5,7 +5,7 @@ new_line    \n
 
 /* ---- Start Of Table ---- */
 
-op (INR|DCR|INRM|DCRM|LDI|STI|MOV|MOVR|MOVM|ADD|ADC|SUB|SBB|AND|XOR|OR|NT|CMP|SHLA|SHRA|SHLL|SHRL|MUL|DIV|MULI|DIVI|RLI|RRI|CALL|CC|CNC|CZ|CNZ|CG|CNG|CE|CNE|CL|CNL|CP|CM|RET|RC|RNC|RZ|RNZ|RG|RNG|RE|RNE|RL|RNL|RP|RM|JMP|JC|JNC|JZ|JNZ|JG|JNG|JE|JNE|JL|JNL|JP|JM|TA|LDA|MVI|MVIM|ADI|ACI|SUI|SBI|ANI|XRI|ORI|CPI|OUI|PUSH|POP|IN|OU|HLT)
+op (inr|dcr|inrm|dcrm|ldi|sti|mov|movr|movm|add|adc|sub|sbb|and|xor|or|nt|cmp|shla|shra|shll|shrl|mul|div|muli|divi|rli|rri|call|cc|cnc|cz|cnz|cg|cng|ce|cne|cl|cnl|cp|cm|ret|rc|rnc|rz|rnz|rg|rng|re|rne|rl|rnl|rp|rm|jmp|jc|jnc|jz|jnz|jg|jng|je|jne|jl|jnl|jp|jm|ta|lda|mvi|mvim|adi|aci|sui|sbi|ani|xri|ori|cpi|oui|push|pop|in|ou|hlt)
 size (DW|DD|DS)
 
 
@@ -29,6 +29,9 @@ using namespace std;
 
 %%
 
+","                       { return COMMA;             }
+"["                       { return LeBraket;          }
+"]"                       { return RiBraket;          }
 "EQU"                     { TYPE( EQU ); return T_EQU;}
 "DUP"                     { return T_DUP;             }
 "??"                      { return T_DB_QuestionMark; }
@@ -41,17 +44,20 @@ using namespace std;
 [ \t]+                    ;  /* Ignore whitespace */
 
 R{hex}                    { 
+                            TRACE;
                             yylval.ObjectCode = (ObjectCode) strtol(&(yytext[1]), NULL, 16);
                             return REGISTER;
                           }
 
 0x{hex}+                  { 
+                            TRACE;
                             yylval.ObjectCode = (ObjectCode) strtol(&(yytext[0]), NULL, 16);
                             return IMMEDIATE; 
                           }
 
 -?{digit}+                { 
                             TYPE( IMMEDIATE );
+                            TRACE;
                             yylval.ObjectCode = (ObjectCode) strtol(&(yytext[0]), NULL, 10);
                             return IMMEDIATE; 
                           }
