@@ -39,7 +39,11 @@
 
 #define YYERROR_VERBOSE 1
 #define YYDEBUG 1
+    extern int yylineno;
+    #define FORMAT( format ) cout<<"On line "<<yylineno<<" Format: "<<#format<<endl
+
 }
+
 %union {
     std::string* str_ptr;
     unsigned long ObjectCode;
@@ -53,6 +57,8 @@
 %token <str_ptr>    IDENTIFIER DIRECTIVE LABEL
 %token <comment> COMMENT
 %token <token> T_EQU T_DB_QuestionMark T_DUP T_ENDL T_EOF NEW_LINE
+%token <str_ptr>    IDENTIFIER 
+%token <token> T_EQU T_DB_QuestionMark T_DUP T_ENDL
 
 %type  <ObjectCode> Instruction
 %type  <ObjectCode> Format1 Format2 Format3 Format4 Format5 
@@ -73,6 +79,14 @@
 
     Statement:            DIRECTIVE;  
                         | Label { FORMAT( Label ); }
+    Program:              Lines;
+
+    Lines:                /* Empty */ 
+                        | Line; 
+                        | Lines Line;
+
+    Line:                 Directive;  
+                        | Label;
                         | ConstantDeclaration { FORMAT( Constant ); }
                         | VariableDeclaration { FORMAT( Variable ); IC++; }
                         | Instruction { 
