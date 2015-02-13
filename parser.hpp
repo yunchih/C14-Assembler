@@ -51,6 +51,7 @@ extern int yydebug;
     #include "identifier.hpp"
     #include "main.hpp"
     #include "instructionTable.hpp"
+    #include "operation.hpp"
     #include "color.hpp"
     using namespace std;
 
@@ -58,14 +59,16 @@ extern int yydebug;
     extern FILE *yyin;
 
     void yyerror ( int IC , enum Pass pass, SymbolTable* table, const char *s); 
-    void die(const char* msg );
+    void die( string msg );
     int getSize( string name );
-    ObjectCode getOp( string op_name );
+    Op* getOp( string op_name );
     void writeInstruction( ObjectCode code );
     void writeVariable( Identifier* var );
 
+    static Operation operation;
+    static vector<ObjectCode> args;
+
     #define Table (*table)
-    #define SHIFT( field ) shift_table[ #field ]
 
     extern int yylineno;
     #define FORMAT( format ) cout<<YELLOW<<"On line "<<yylineno-1<<" Format: "<<#format<<RESET<<endl
@@ -81,7 +84,7 @@ extern int yydebug;
 #define YYDEBUG 1
 
 
-#line 85 "parser.hpp" /* yacc.c:1909  */
+#line 88 "parser.hpp" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -113,14 +116,15 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 42 "parser.y" /* yacc.c:1909  */
+#line 45 "parser.y" /* yacc.c:1909  */
 
     std::string* str_ptr;
     unsigned long ObjectCode;
+    Op* Op_ptr;
     int token;
     int comment;
 
-#line 124 "parser.hpp" /* yacc.c:1909  */
+#line 128 "parser.hpp" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

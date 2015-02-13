@@ -8,6 +8,7 @@
     #include "identifier.hpp"
     #include "main.hpp"
     #include "instructionTable.hpp"
+    #include "operation.hpp"
     #include "color.hpp"
     using namespace std;
 
@@ -15,14 +16,16 @@
     extern FILE *yyin;
 
     void yyerror ( int IC , enum Pass pass, SymbolTable* table, const char *s); 
-    void die(const char* msg );
+    void die( string msg );
     int getSize( string name );
-    ObjectCode getOp( string op_name );
+    Op* getOp( string op_name );
     void writeInstruction( ObjectCode code );
     void writeVariable( Identifier* var );
 
+    static Operation operation;
+    static vector<ObjectCode> args;
+
     #define Table (*table)
-    #define SHIFT( field ) shift_table[ #field ]
 
     extern int yylineno;
     #define FORMAT( format ) cout<<YELLOW<<"On line "<<yylineno-1<<" Format: "<<#format<<RESET<<endl
@@ -42,6 +45,7 @@
 %union {
     std::string* str_ptr;
     unsigned long ObjectCode;
+    Op* Op_ptr;
     int token;
     int comment;
 }
@@ -57,9 +61,10 @@
 %token <str_ptr>    LABEL
 %token <str_ptr>    OP SIZE
 
+%type  <Op_ptr>     Op
 %type  <ObjectCode> Instruction
 %type  <ObjectCode> Format1 Format2 Format3 Format4 Format5 
-%type  <ObjectCode> Op Address Dest SourceS SourceT MemorySrc MemoryDest
+%type  <ObjectCode> Address Dest SourceS SourceT MemorySrc MemoryDest
 %type  <ObjectCode> Size 
 
 
@@ -138,34 +143,93 @@
                         | Format5 { FORMAT( Format5 ); $$ = $1; }
                     
     
-    Format1:              Op  Dest COMMA SourceS COMMA SourceT { $$ = $1 + $2 + $4 + $6; }
+    Format1:              Op  Dest COMMA SourceS COMMA SourceT { 
+                            if( ($1)->check_format( Format1 ) ){ 
+                                operation = ($1)->operation;
+                                args.push_back($2);
+                                args.push_back($4);
+                                args.push_back($6);
+                                $$ = operation( args );
+                                args.clear();
+                            }
+                            else
+                                die( ($1)->format_info() );  
+                          }
 
-    Format2:              Op  Dest COMMA Address { $$ = $1 + $2 + $4; }
+    Format2:              Op  Dest COMMA Address {
+                            if( ($1)->check_format( Format2 ) ){ 
+                                operation = ($1)->operation;
+                                args.push_back($2);
+                                args.push_back($4);
+                                $$ = operation( args );
+                                args.clear();
+                            }
+                            else
+                                die( ($1)->format_info() );  
+                          }
 
-    Format3:              Op  Address { $$ = $1 + $2; }
+    Format3:              Op  Address {
+                            if( ($1)->check_format( Format3 ) ){ 
+                                operation = ($1)->operation;
+                                args.push_back($2);
+                                $$ = operation( args );
+                                args.clear();
+                            }
+                            else
+                                die( ($1)->format_info() );  
+                          }
 
-    Format4:              Op  MemoryDest COMMA SourceS { $$ = $1 + $2 + $4; }
-                        | Op  Dest COMMA MemorySrc  { $$ = $1 + $2 + $4; }
+    Format4:              Op  MemoryDest COMMA SourceS { 
+                            if( ($1)->check_format( Format4 ) ){ 
+                                operation = ($1)->operation;
+                                args.push_back($2);
+                                args.push_back($4);
+                                $$ = operation( args );
+                                args.clear();
+                            }
+                            else
+                                die( ($1)->format_info() );  
+                          }
+                        | Op  Dest COMMA MemorySrc  { 
+                            if( ($1)->check_format( Format4 ) ){ 
+                                operation = ($1)->operation;
+                                args.push_back($2);
+                                args.push_back($4);
+                                $$ = operation( args );
+                                args.clear();
+                            }
+                            else
+                                die( ($1)->format_info() );  
+                          }
     
-    Format5:              Op  Dest COMMA SourceS { $$ = $1 + $2 + $4; }
+    Format5:              Op  Dest COMMA SourceS { 
+                            if( ($1)->check_format( Format5 ) ){ 
+                                operation = ($1)->operation;
+                                args.push_back($2);
+                                args.push_back($4);
+                                $$ = operation( args );
+                                args.clear();
+                            }
+                            else
+                                die( ($1)->format_info() );  
+                          }
 
     
     
     Op:                   OP {
                             if( pass == SECOND ){
                                 $$ = getOp( *$1 );
-                                $$ <<= SHIFT( Op );
                             }
                             else
                                 $$ = 0;
                             delete $1;
                           }
 
-    MemoryDest:           LeBraket REGISTER RiBraket { $$ = $2 << SHIFT(  Dest   ); } 
-                        | LeBraket Address  RiBraket { $$ = $2 << SHIFT( Address ); }
+    MemoryDest:           LeBraket REGISTER RiBraket { $$ = $2; } 
+                        | LeBraket Address  RiBraket { $$ = $2; }
 
-    MemorySrc:            LeBraket REGISTER RiBraket { $$ = $2 << SHIFT( SourceS ); } 
-                        | LeBraket Address  RiBraket { $$ = $2 << SHIFT( Address ); }
+    MemorySrc:            LeBraket REGISTER RiBraket { $$ = $2; } 
+                        | LeBraket Address  RiBraket { $$ = $2; }
 
     Address:              IDENTIFIER /* Symbol */ {
                             if( pass == SECOND )  {
@@ -175,17 +239,16 @@
                                }
                                else
                                    $$ = (Table[ *$1 ])->eval();
-                               $$ <<= SHIFT( Address );
                             }
                             else
                                 $$ = 0;
                             delete $1;
                         }
-                        | IMMEDIATE { $$ = $1 << SHIFT( Address );}    
+                        | IMMEDIATE { $$ = $1;}    
 
-    Dest:                 REGISTER { $$ = $1 << SHIFT( Dest ); }
-    SourceS:              REGISTER { $$ = $1 << SHIFT( SourceS ); }
-    SourceT:              REGISTER { $$ = $1 << SHIFT( SourceT ); }
+    Dest:                 REGISTER { $$ = $1; }
+    SourceS:              REGISTER { $$ = $1; }
+    SourceT:              REGISTER { $$ = $1; }
 
     Size:                 SIZE { $$ = getSize(*$1); delete $1; }
  
@@ -200,7 +263,7 @@ int getSize( string name ){
     }
     else return size_table[ name ];
 }
-ObjectCode getOp( string op_name ){
+Op* getOp( string op_name ){
     if( op_table.find( op_name ) == op_table.end() ){
         die("Undefined instruction");
         return 0;
@@ -219,9 +282,9 @@ void writeVariable( Identifier* var ){
 
 }
 
-void die(const char * msg ){ 
+void die( string msg ){ 
     extern int yylineno;
-    fprintf(stderr, RED "line %d: %s\n" RESET, yylineno-1, msg);
+    cerr << RED << "line "<< yylineno-1 << ": " << msg <<endl;
 }
 
 void yyerror ( int IC , enum Pass pass, SymbolTable* table, const char *s) {

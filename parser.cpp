@@ -104,6 +104,7 @@ extern int yydebug;
     #include "identifier.hpp"
     #include "main.hpp"
     #include "instructionTable.hpp"
+    #include "operation.hpp"
     #include "color.hpp"
     using namespace std;
 
@@ -111,14 +112,16 @@ extern int yydebug;
     extern FILE *yyin;
 
     void yyerror ( int IC , enum Pass pass, SymbolTable* table, const char *s); 
-    void die(const char* msg );
+    void die( string msg );
     int getSize( string name );
-    ObjectCode getOp( string op_name );
+    Op* getOp( string op_name );
     void writeInstruction( ObjectCode code );
     void writeVariable( Identifier* var );
 
+    static Operation operation;
+    static vector<ObjectCode> args;
+
     #define Table (*table)
-    #define SHIFT( field ) shift_table[ #field ]
 
     extern int yylineno;
     #define FORMAT( format ) cout<<YELLOW<<"On line "<<yylineno-1<<" Format: "<<#format<<RESET<<endl
@@ -134,7 +137,7 @@ extern int yydebug;
 #define YYDEBUG 1
 
 
-#line 138 "parser.cpp" /* yacc.c:355  */
+#line 141 "parser.cpp" /* yacc.c:355  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -166,14 +169,15 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 42 "parser.y" /* yacc.c:355  */
+#line 45 "parser.y" /* yacc.c:355  */
 
     std::string* str_ptr;
     unsigned long ObjectCode;
+    Op* Op_ptr;
     int token;
     int comment;
 
-#line 177 "parser.cpp" /* yacc.c:355  */
+#line 181 "parser.cpp" /* yacc.c:355  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
@@ -188,7 +192,7 @@ int yyparse (int IC, enum Pass pass, SymbolTable* table);
 
 /* Copy the second part of user declarations.  */
 
-#line 192 "parser.cpp" /* yacc.c:358  */
+#line 196 "parser.cpp" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -487,11 +491,11 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    68,    68,    70,    71,    73,    74,    75,    76,    77,
-      79,    80,    81,    82,    83,    90,    96,   103,   111,   119,
-     128,   134,   135,   136,   137,   138,   141,   143,   145,   147,
-     148,   150,   154,   164,   165,   167,   168,   170,   184,   186,
-     187,   188,   190
+       0,    73,    73,    75,    76,    78,    79,    80,    81,    82,
+      84,    85,    86,    87,    88,    95,   101,   108,   116,   124,
+     133,   139,   140,   141,   142,   143,   146,   159,   171,   182,
+     193,   205,   219,   228,   229,   231,   232,   234,   247,   249,
+     250,   251,   253
 };
 #endif
 
@@ -1311,76 +1315,76 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 68 "parser.y" /* yacc.c:1646  */
+#line 73 "parser.y" /* yacc.c:1646  */
     { FORMAT( Program ); }
-#line 1317 "parser.cpp" /* yacc.c:1646  */
+#line 1321 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 74 "parser.y" /* yacc.c:1646  */
+#line 79 "parser.y" /* yacc.c:1646  */
     { FORMAT( Single line comment ); }
-#line 1323 "parser.cpp" /* yacc.c:1646  */
+#line 1327 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 76 "parser.y" /* yacc.c:1646  */
+#line 81 "parser.y" /* yacc.c:1646  */
     { FORMAT(Statement); }
-#line 1329 "parser.cpp" /* yacc.c:1646  */
+#line 1333 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 80 "parser.y" /* yacc.c:1646  */
+#line 85 "parser.y" /* yacc.c:1646  */
     { FORMAT( Label ); }
-#line 1335 "parser.cpp" /* yacc.c:1646  */
+#line 1339 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 81 "parser.y" /* yacc.c:1646  */
+#line 86 "parser.y" /* yacc.c:1646  */
     { FORMAT( Constant ); }
-#line 1341 "parser.cpp" /* yacc.c:1646  */
+#line 1345 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 82 "parser.y" /* yacc.c:1646  */
+#line 87 "parser.y" /* yacc.c:1646  */
     { FORMAT( Variable ); IC++; }
-#line 1347 "parser.cpp" /* yacc.c:1646  */
+#line 1351 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 83 "parser.y" /* yacc.c:1646  */
+#line 88 "parser.y" /* yacc.c:1646  */
     { 
                             FORMAT( Instruction );
                             if( pass == SECOND )
                                 writeInstruction((yyvsp[0].ObjectCode)); 
                             IC++; 
                           }
-#line 1358 "parser.cpp" /* yacc.c:1646  */
+#line 1362 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 90 "parser.y" /* yacc.c:1646  */
+#line 95 "parser.y" /* yacc.c:1646  */
     {
                             FORMAT( IDENTIFIER EQU IMMEDIATE );
                             if( pass == FIRST ) /* Do nothing on second pass */
                                 Table[ *(yyvsp[-2].str_ptr) ] = new Constant( (yyvsp[0].ObjectCode) ); 
                             delete (yyvsp[-2].str_ptr);
                           }
-#line 1369 "parser.cpp" /* yacc.c:1646  */
+#line 1373 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 96 "parser.y" /* yacc.c:1646  */
+#line 101 "parser.y" /* yacc.c:1646  */
     {
                             FORMAT( IDENTIFIER EQU ?? );
                             if( pass == FIRST ) /* Do nothing on second pass */
                                 Table[ *(yyvsp[-2].str_ptr) ] = new Constant( 0 ); 
                             delete (yyvsp[-2].str_ptr);
                           }
-#line 1380 "parser.cpp" /* yacc.c:1646  */
+#line 1384 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 103 "parser.y" /* yacc.c:1646  */
+#line 108 "parser.y" /* yacc.c:1646  */
     { 
                             FORMAT( IDENTIFIER Size IMMEDIATE );
                             if( pass == FIRST )
@@ -1389,11 +1393,11 @@ yyreduce:
                                 writeVariable( Table[ *(yyvsp[-2].str_ptr) ] );
                             delete (yyvsp[-2].str_ptr);
                           }
-#line 1393 "parser.cpp" /* yacc.c:1646  */
+#line 1397 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 111 "parser.y" /* yacc.c:1646  */
+#line 116 "parser.y" /* yacc.c:1646  */
     { /* Uninitialized variable */
                             FORMAT( IDENTIFIER Size ? );
                             if( pass == FIRST )
@@ -1402,11 +1406,11 @@ yyreduce:
                                 writeVariable( Table[ *(yyvsp[-2].str_ptr) ] );
                             delete (yyvsp[-2].str_ptr);
                           }
-#line 1406 "parser.cpp" /* yacc.c:1646  */
+#line 1410 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 119 "parser.y" /* yacc.c:1646  */
+#line 124 "parser.y" /* yacc.c:1646  */
     { /* Array declaration */
                             FORMAT( Array );
                             if( pass == FIRST )
@@ -1415,125 +1419,184 @@ yyreduce:
                                 writeVariable( Table[ *(yyvsp[-6].str_ptr) ] );
                             delete (yyvsp[-6].str_ptr);
                           }
-#line 1419 "parser.cpp" /* yacc.c:1646  */
+#line 1423 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 128 "parser.y" /* yacc.c:1646  */
+#line 133 "parser.y" /* yacc.c:1646  */
     {
                             if( pass == FIRST ) /* Do nothing on second pass */
                                 Table[ *(yyvsp[0].str_ptr) ] = new Symbol( IC );
                             delete (yyvsp[0].str_ptr);
                           }
-#line 1429 "parser.cpp" /* yacc.c:1646  */
+#line 1433 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 134 "parser.y" /* yacc.c:1646  */
+#line 139 "parser.y" /* yacc.c:1646  */
     { FORMAT( Format1 ); (yyval.ObjectCode) = (yyvsp[0].ObjectCode); }
-#line 1435 "parser.cpp" /* yacc.c:1646  */
+#line 1439 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 135 "parser.y" /* yacc.c:1646  */
+#line 140 "parser.y" /* yacc.c:1646  */
     { FORMAT( Format2 ); (yyval.ObjectCode) = (yyvsp[0].ObjectCode); }
-#line 1441 "parser.cpp" /* yacc.c:1646  */
+#line 1445 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 136 "parser.y" /* yacc.c:1646  */
+#line 141 "parser.y" /* yacc.c:1646  */
     { FORMAT( Format3 ); (yyval.ObjectCode) = (yyvsp[0].ObjectCode); }
-#line 1447 "parser.cpp" /* yacc.c:1646  */
+#line 1451 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 137 "parser.y" /* yacc.c:1646  */
+#line 142 "parser.y" /* yacc.c:1646  */
     { FORMAT( Format4 ); (yyval.ObjectCode) = (yyvsp[0].ObjectCode); }
-#line 1453 "parser.cpp" /* yacc.c:1646  */
+#line 1457 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 138 "parser.y" /* yacc.c:1646  */
+#line 143 "parser.y" /* yacc.c:1646  */
     { FORMAT( Format5 ); (yyval.ObjectCode) = (yyvsp[0].ObjectCode); }
-#line 1459 "parser.cpp" /* yacc.c:1646  */
+#line 1463 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 141 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[-5].ObjectCode) + (yyvsp[-4].ObjectCode) + (yyvsp[-2].ObjectCode) + (yyvsp[0].ObjectCode); }
-#line 1465 "parser.cpp" /* yacc.c:1646  */
+#line 146 "parser.y" /* yacc.c:1646  */
+    { 
+                            if( ((yyvsp[-5].Op_ptr))->check_format( Format1 ) ){ 
+                                operation = ((yyvsp[-5].Op_ptr))->operation;
+                                args.push_back((yyvsp[-4].ObjectCode));
+                                args.push_back((yyvsp[-2].ObjectCode));
+                                args.push_back((yyvsp[0].ObjectCode));
+                                (yyval.ObjectCode) = operation( args );
+                                args.clear();
+                            }
+                            else
+                                die( ((yyvsp[-5].Op_ptr))->format_info() );  
+                          }
+#line 1480 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 143 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[-3].ObjectCode) + (yyvsp[-2].ObjectCode) + (yyvsp[0].ObjectCode); }
-#line 1471 "parser.cpp" /* yacc.c:1646  */
+#line 159 "parser.y" /* yacc.c:1646  */
+    {
+                            if( ((yyvsp[-3].Op_ptr))->check_format( Format2 ) ){ 
+                                operation = ((yyvsp[-3].Op_ptr))->operation;
+                                args.push_back((yyvsp[-2].ObjectCode));
+                                args.push_back((yyvsp[0].ObjectCode));
+                                (yyval.ObjectCode) = operation( args );
+                                args.clear();
+                            }
+                            else
+                                die( ((yyvsp[-3].Op_ptr))->format_info() );  
+                          }
+#line 1496 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 145 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[-1].ObjectCode) + (yyvsp[0].ObjectCode); }
-#line 1477 "parser.cpp" /* yacc.c:1646  */
+#line 171 "parser.y" /* yacc.c:1646  */
+    {
+                            if( ((yyvsp[-1].Op_ptr))->check_format( Format3 ) ){ 
+                                operation = ((yyvsp[-1].Op_ptr))->operation;
+                                args.push_back((yyvsp[0].ObjectCode));
+                                (yyval.ObjectCode) = operation( args );
+                                args.clear();
+                            }
+                            else
+                                die( ((yyvsp[-1].Op_ptr))->format_info() );  
+                          }
+#line 1511 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 147 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[-3].ObjectCode) + (yyvsp[-2].ObjectCode) + (yyvsp[0].ObjectCode); }
-#line 1483 "parser.cpp" /* yacc.c:1646  */
-    break;
-
-  case 30:
-#line 148 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[-3].ObjectCode) + (yyvsp[-2].ObjectCode) + (yyvsp[0].ObjectCode); }
-#line 1489 "parser.cpp" /* yacc.c:1646  */
-    break;
-
-  case 31:
-#line 150 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[-3].ObjectCode) + (yyvsp[-2].ObjectCode) + (yyvsp[0].ObjectCode); }
-#line 1495 "parser.cpp" /* yacc.c:1646  */
-    break;
-
-  case 32:
-#line 154 "parser.y" /* yacc.c:1646  */
-    {
-                            if( pass == SECOND ){
-                                (yyval.ObjectCode) = getOp( *(yyvsp[0].str_ptr) );
-                                (yyval.ObjectCode) <<= SHIFT( Op );
+#line 182 "parser.y" /* yacc.c:1646  */
+    { 
+                            if( ((yyvsp[-3].Op_ptr))->check_format( Format4 ) ){ 
+                                operation = ((yyvsp[-3].Op_ptr))->operation;
+                                args.push_back((yyvsp[-2].ObjectCode));
+                                args.push_back((yyvsp[0].ObjectCode));
+                                (yyval.ObjectCode) = operation( args );
+                                args.clear();
                             }
                             else
-                                (yyval.ObjectCode) = 0;
-                            delete (yyvsp[0].str_ptr);
+                                die( ((yyvsp[-3].Op_ptr))->format_info() );  
                           }
-#line 1509 "parser.cpp" /* yacc.c:1646  */
-    break;
-
-  case 33:
-#line 164 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[-1].ObjectCode) << SHIFT(  Dest   ); }
-#line 1515 "parser.cpp" /* yacc.c:1646  */
-    break;
-
-  case 34:
-#line 165 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[-1].ObjectCode) << SHIFT( Address ); }
-#line 1521 "parser.cpp" /* yacc.c:1646  */
-    break;
-
-  case 35:
-#line 167 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[-1].ObjectCode) << SHIFT( SourceS ); }
 #line 1527 "parser.cpp" /* yacc.c:1646  */
     break;
 
+  case 30:
+#line 193 "parser.y" /* yacc.c:1646  */
+    { 
+                            if( ((yyvsp[-3].Op_ptr))->check_format( Format4 ) ){ 
+                                operation = ((yyvsp[-3].Op_ptr))->operation;
+                                args.push_back((yyvsp[-2].ObjectCode));
+                                args.push_back((yyvsp[0].ObjectCode));
+                                (yyval.ObjectCode) = operation( args );
+                                args.clear();
+                            }
+                            else
+                                die( ((yyvsp[-3].Op_ptr))->format_info() );  
+                          }
+#line 1543 "parser.cpp" /* yacc.c:1646  */
+    break;
+
+  case 31:
+#line 205 "parser.y" /* yacc.c:1646  */
+    { 
+                            if( ((yyvsp[-3].Op_ptr))->check_format( Format5 ) ){ 
+                                operation = ((yyvsp[-3].Op_ptr))->operation;
+                                args.push_back((yyvsp[-2].ObjectCode));
+                                args.push_back((yyvsp[0].ObjectCode));
+                                (yyval.ObjectCode) = operation( args );
+                                args.clear();
+                            }
+                            else
+                                die( ((yyvsp[-3].Op_ptr))->format_info() );  
+                          }
+#line 1559 "parser.cpp" /* yacc.c:1646  */
+    break;
+
+  case 32:
+#line 219 "parser.y" /* yacc.c:1646  */
+    {
+                            if( pass == SECOND ){
+                                (yyval.Op_ptr) = getOp( *(yyvsp[0].str_ptr) );
+                            }
+                            else
+                                (yyval.Op_ptr) = 0;
+                            delete (yyvsp[0].str_ptr);
+                          }
+#line 1572 "parser.cpp" /* yacc.c:1646  */
+    break;
+
+  case 33:
+#line 228 "parser.y" /* yacc.c:1646  */
+    { (yyval.ObjectCode) = (yyvsp[-1].ObjectCode); }
+#line 1578 "parser.cpp" /* yacc.c:1646  */
+    break;
+
+  case 34:
+#line 229 "parser.y" /* yacc.c:1646  */
+    { (yyval.ObjectCode) = (yyvsp[-1].ObjectCode); }
+#line 1584 "parser.cpp" /* yacc.c:1646  */
+    break;
+
+  case 35:
+#line 231 "parser.y" /* yacc.c:1646  */
+    { (yyval.ObjectCode) = (yyvsp[-1].ObjectCode); }
+#line 1590 "parser.cpp" /* yacc.c:1646  */
+    break;
+
   case 36:
-#line 168 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[-1].ObjectCode) << SHIFT( Address ); }
-#line 1533 "parser.cpp" /* yacc.c:1646  */
+#line 232 "parser.y" /* yacc.c:1646  */
+    { (yyval.ObjectCode) = (yyvsp[-1].ObjectCode); }
+#line 1596 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 170 "parser.y" /* yacc.c:1646  */
+#line 234 "parser.y" /* yacc.c:1646  */
     {
                             if( pass == SECOND )  {
                                if( table->find( *(yyvsp[0].str_ptr) ) == table->end() ) {
@@ -1542,47 +1605,46 @@ yyreduce:
                                }
                                else
                                    (yyval.ObjectCode) = (Table[ *(yyvsp[0].str_ptr) ])->eval();
-                               (yyval.ObjectCode) <<= SHIFT( Address );
                             }
                             else
                                 (yyval.ObjectCode) = 0;
                             delete (yyvsp[0].str_ptr);
                         }
-#line 1552 "parser.cpp" /* yacc.c:1646  */
+#line 1614 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 184 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[0].ObjectCode) << SHIFT( Address );}
-#line 1558 "parser.cpp" /* yacc.c:1646  */
+#line 247 "parser.y" /* yacc.c:1646  */
+    { (yyval.ObjectCode) = (yyvsp[0].ObjectCode);}
+#line 1620 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 186 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[0].ObjectCode) << SHIFT( Dest ); }
-#line 1564 "parser.cpp" /* yacc.c:1646  */
+#line 249 "parser.y" /* yacc.c:1646  */
+    { (yyval.ObjectCode) = (yyvsp[0].ObjectCode); }
+#line 1626 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 187 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[0].ObjectCode) << SHIFT( SourceS ); }
-#line 1570 "parser.cpp" /* yacc.c:1646  */
+#line 250 "parser.y" /* yacc.c:1646  */
+    { (yyval.ObjectCode) = (yyvsp[0].ObjectCode); }
+#line 1632 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 188 "parser.y" /* yacc.c:1646  */
-    { (yyval.ObjectCode) = (yyvsp[0].ObjectCode) << SHIFT( SourceT ); }
-#line 1576 "parser.cpp" /* yacc.c:1646  */
+#line 251 "parser.y" /* yacc.c:1646  */
+    { (yyval.ObjectCode) = (yyvsp[0].ObjectCode); }
+#line 1638 "parser.cpp" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 190 "parser.y" /* yacc.c:1646  */
+#line 253 "parser.y" /* yacc.c:1646  */
     { (yyval.ObjectCode) = getSize(*(yyvsp[0].str_ptr)); delete (yyvsp[0].str_ptr); }
-#line 1582 "parser.cpp" /* yacc.c:1646  */
+#line 1644 "parser.cpp" /* yacc.c:1646  */
     break;
 
 
-#line 1586 "parser.cpp" /* yacc.c:1646  */
+#line 1648 "parser.cpp" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1810,7 +1872,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 193 "parser.y" /* yacc.c:1906  */
+#line 256 "parser.y" /* yacc.c:1906  */
 
 
 int getSize( string name ){
@@ -1821,7 +1883,7 @@ int getSize( string name ){
     }
     else return size_table[ name ];
 }
-ObjectCode getOp( string op_name ){
+Op* getOp( string op_name ){
     if( op_table.find( op_name ) == op_table.end() ){
         die("Undefined instruction");
         return 0;
@@ -1840,9 +1902,9 @@ void writeVariable( Identifier* var ){
 
 }
 
-void die(const char * msg ){ 
+void die( string msg ){ 
     extern int yylineno;
-    fprintf(stderr, RED "line %d: %s\n" RESET, yylineno-1, msg);
+    cerr << RED << "line "<< yylineno-1 << ": " << msg <<endl;
 }
 
 void yyerror ( int IC , enum Pass pass, SymbolTable* table, const char *s) {

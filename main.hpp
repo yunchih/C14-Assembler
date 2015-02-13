@@ -3,6 +3,8 @@
 
 enum Pass { FIRST , SECOND };
 
+enum Format { Format1,Format2,Format3,Format4,Format5 };
+
 typedef unsigned long ObjectCode;
 
 #define sizeOfByte 8
