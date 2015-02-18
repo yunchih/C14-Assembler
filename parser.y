@@ -136,86 +136,86 @@
                             delete $1;
                           }
 
-    Instruction:          Format1 { FORMAT( Format1 ); $$ = $1; }
-                        | Format2 { FORMAT( Format2 ); $$ = $1; }
-                        | Format3 { FORMAT( Format3 ); $$ = $1; }
-                        | Format4 { FORMAT( Format4 ); $$ = $1; }
-                        | Format5 { FORMAT( Format5 ); $$ = $1; }
+    Instruction:          Format1  { FORMAT( Format1 );  $$ = $1; }
+                        | Format2  { FORMAT( Format2 );  $$ = $1; }
+                        | Format3  { FORMAT( Format3 );  $$ = $1; }
+                        | Format4  { FORMAT( Format4 );  $$ = $1; }
+                        | Format5  { FORMAT( Format5 );  $$ = $1; }
+                        | Format6  { FORMAT( Format6 );  $$ = $1; }
+                        | Format7  { FORMAT( Format7 );  $$ = $1; }
+                        | Format8  { FORMAT( Format8 );  $$ = $1; }
+                        | Format9  { FORMAT( Format9 );  $$ = $1; }
+                        | Format10 { FORMAT( Format10 ); $$ = $1; }
                     
     
     Format1:              Op  Dest COMMA SourceS COMMA SourceT { 
-                            if( ($1)->check_format( Format1 ) ){ 
-                                operation = ($1)->operation;
-                                args.push_back($2);
-                                args.push_back($4);
-                                args.push_back($6);
-                                $$ = operation( args );
-                                args.clear();
-                            }
+                            if( ($1)->check_format( Format1 ) ) 
+                                Operation::format1($2,$4,$6);
                             else
                                 die( ($1)->format_info() );  
                           }
 
     Format2:              Op  Dest COMMA Address {
-                            if( ($1)->check_format( Format2 ) ){ 
-                                operation = ($1)->operation;
-                                args.push_back($2);
-                                args.push_back($4);
-                                $$ = operation( args );
-                                args.clear();
-                            }
+                            if( ($1)->check_format( Format2 ) )
+                                Operation::format2($2,$4);
                             else
                                 die( ($1)->format_info() );  
                           }
 
     Format3:              Op  Address {
-                            if( ($1)->check_format( Format3 ) ){ 
-                                operation = ($1)->operation;
-                                args.push_back($2);
-                                $$ = operation( args );
-                                args.clear();
-                            }
+                            if( ($1)->check_format( Format3 ) )
+                                Operation::format3($2);
                             else
                                 die( ($1)->format_info() );  
                           }
 
-    Format4:              Op  MemoryDest COMMA SourceS { 
-                            if( ($1)->check_format( Format4 ) ){ 
-                                operation = ($1)->operation;
-                                args.push_back($2);
-                                args.push_back($4);
-                                $$ = operation( args );
-                                args.clear();
-                            }
-                            else
-                                die( ($1)->format_info() );  
-                          }
-                        | Op  Dest COMMA MemorySrc  { 
-                            if( ($1)->check_format( Format4 ) ){ 
-                                operation = ($1)->operation;
-                                args.push_back($2);
-                                args.push_back($4);
-                                $$ = operation( args );
-                                args.clear();
-                            }
-                            else
-                                die( ($1)->format_info() );  
-                          }
-    
-    Format5:              Op  Dest COMMA SourceS { 
-                            if( ($1)->check_format( Format5 ) ){ 
-                                operation = ($1)->operation;
-                                args.push_back($2);
-                                args.push_back($4);
-                                $$ = operation( args );
-                                args.clear();
-                            }
+    Format4:              Op  MemoryReg COMMA SourceS { 
+                            if( ($1)->check_format( Format4 ) ) 
+                                Operation::format4($2,$4);
                             else
                                 die( ($1)->format_info() );  
                           }
 
+    Format5:              Op  Dest COMMA MemoryReg  { 
+                            if( ($1)->check_format( Format5 ) )
+                                Operation::format5($2,$4);
+                            else
+                                die( ($1)->format_info() );  
+                          }
     
+    Format6:              Op  MemoryAddr COMMA SourceS { 
+                            if( ($1)->check_format( Format6 ) )
+                                Operation::format6($2,$4);
+                            else
+                                die( ($1)->format_info() );  
+                          }
+    Format7:              Op  Dest COMMA MemoryAddr  { 
+                            if( ($1)->check_format( Format7 ) )
+                                Operation::format7($2,$4);
+                            else
+                                die( ($1)->format_info() );  
+                          }
+    Format8:              Op  Dest COMMA SourceS { 
+                            if( ($1)->check_format( Format8 ) )
+                                Operation::format8($2,$4);
+                            else
+                                die( ($1)->format_info() );  
+                          }
+
+    Format9:              Op  SourceS { 
+                            if( ($1)->check_format( Format9 ) )
+                                Operation::format9($2);
+                            else
+                                die( ($1)->format_info() );  
+                          }
     
+    Format10:             Op { 
+                            if( ($1)->check_format( Format10 ) )
+                                Operation::format10();
+                            else
+                                die( ($1)->format_info() );  
+                          }
+
     Op:                   OP {
                             if( pass == SECOND ){
                                 $$ = getOp( *$1 );
@@ -225,11 +225,10 @@
                             delete $1;
                           }
 
-    MemoryDest:           LeBraket REGISTER RiBraket { $$ = $2; } 
-                        | LeBraket Address  RiBraket { $$ = $2; }
+    MemoryReg:            LeBraket REGISTER RiBraket { $$ = $2; } 
 
-    MemorySrc:            LeBraket REGISTER RiBraket { $$ = $2; } 
-                        | LeBraket Address  RiBraket { $$ = $2; }
+    MemoryAddr:           LeBraket Address RiBraket { $$ = $2; } 
+                        | IMMEDIATE { $$ = $1; }
 
     Address:              IDENTIFIER /* Symbol */ {
                             if( pass == SECOND )  {
@@ -256,20 +255,22 @@
 %%
 
 int getSize( string name ){
-    cout<<"Query size: "<<name<<endl;
-    if( size_table.find( name ) == size_table.end() ){
+    Size_table::iterator it = size_table.find( name );
+    if(  it == size_table.end() ){
         die("Invalid size prefix" );
         return 0;
     }
-    else return size_table[ name ];
+    else 
+        return it->second;
 }
 Op* getOp( string op_name ){
-    if( op_table.find( op_name ) == op_table.end() ){
+    Op_table::iterator it = op_table.find( op_name );
+    if(  it == op_table.end() ){
         die("Undefined instruction");
         return 0;
     }
     else 
-        return op_table[ op_name ];
+        return it->second;
 }
 
 void writeInstruction( ObjectCode code ){

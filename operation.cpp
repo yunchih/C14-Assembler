@@ -1,20 +1,38 @@
 #include "operation.hpp"
 
-namespace op {
-    int format1( );
+namespace Operation {
+    void format1( ObjectCode Dest, ObjectCode SourceS, ObjectCode SourceT ){
+    
+    }
+    void format2( ObjectCode Dest, ObjectCode Addr ){
+    
+    }
+    void format3( ObjectCode Addr ){
+    
+    }
+    void format4( ObjectCode MemoryReg, ObjectCode SourceS ){
+    
+    }
+    void format5( ObjectCode Dest , ObjectCode MemoryReg ){
+    
+    }
+    void format6( ObjectCode MemoryAddr, ObjectCode SourceS ){
+    
+    }
+    void format7( ObjectCode Dest, ObjectCode MemoryAddr ){
+    
+    }
+    void format8( ObjectCode Dest, ObjectCode SourceS ){
+    
+    }
+    void format9( ObjectCode SourceS ){
+    
+    }
+    void format10( void ){
+    
+    }
 }
 
-/* 
- *
- * fetch_op returns a function according to `Format` 
- * that returns an ObjectCode
- *
- *
- */
-
-Operation Op::fetch_op( Format format ){
-
-}
 
 std::string Op::format_info(void){
     switch( Op::format ){
@@ -27,7 +45,17 @@ std::string Op::format_info(void){
         case Format4: 
             return Op::name + "format: Op [Register] SourceS";
         case Format5: 
+            return Op::name + "format: Op Dest [Register]";
+        case Format6: 
+            return Op::name + "format: Op [Symbol] SourceS";
+        case Format7: 
+            return Op::name + "format: Op Dest [Symbol]";
+        case Format8: 
             return Op::name + "format: Op Dest SourceS";
+        case Format9: 
+            return Op::name + "format: Op SourceS";
+        case Format10: 
+            return Op::name + "format: Op";
     }
 }
 bool Op::check_format( Format format ){
