@@ -1,7 +1,7 @@
 all: assembler 
 
 CPPFLAGS += -std=c++11 -g #-DDEBUG
-OBJS = parser.o lexer.o main.o instructionTable.o operation.o
+OBJS = parser.o lexer.o main.o instructionTable.o operation.o identifier.o
 OBJDIR = bin
 OUT_OBJS=$(addprefix $(OBJDIR)/,$(OBJS))
 
@@ -13,6 +13,8 @@ parser.cpp parser.hpp: parser.y
 lexer.cpp: $(LexFile) parser.hpp
 	flex -o lexer.cpp $(LexFile) 
 
+$(OBJDIR)/identifier.o: identifier.cpp 
+	g++ -c $(CPPFLAGS) -o $@ $<  
 $(OBJDIR)/operation.o: operation.cpp 
 	g++ -c $(CPPFLAGS) -o $@ $<  
 $(OBJDIR)/instructionTable.o: instructionTable.cpp 
@@ -41,8 +43,3 @@ RunPreprocessor: preprocessor
 test: assembler
 	./assembler test.asm
 
-bash:
-	sed -i 's/\(^ *op_table.*=\) *\(.*\);/\1 new Op( \2 , Format );/g' \
-	instructionTable.cpp
-	# pattern='\(^ *op_table.*=\) *\(.*\);' 
-	# replacement='\1 new Op( \2 , Format );'

@@ -1,38 +1,40 @@
 #include "operation.hpp"
 
-namespace Operation {
-    void format1( ObjectCode Dest, ObjectCode SourceS, ObjectCode SourceT ){
-    
+void Op::format1( ObjectCode Dest, ObjectCode SourceS, ObjectCode SourceT ){
+
+}
+void Op::format2( ObjectCode Dest, ObjectCode Addr ){
+
+}
+void Op::format3( ObjectCode Addr ){
+
+}
+void Op::format4( ObjectCode MemoryReg, ObjectCode SourceS ){
+
+}
+void Op::format5( ObjectCode Dest , ObjectCode MemoryReg ){
+
+}
+void Op::format6( ObjectCode MemoryAddr, ObjectCode SourceS ){
+
+}
+void Op::format7( ObjectCode Dest, ObjectCode MemoryAddr ){
+
+}
+void Op::format8( ObjectCode Dest, ObjectCode SourceS ){
+
+}
+void Op::format9( ObjectCode SourceS ){
+    if( Op::name == "inr" ){
+
     }
-    void format2( ObjectCode Dest, ObjectCode Addr ){
-    
-    }
-    void format3( ObjectCode Addr ){
-    
-    }
-    void format4( ObjectCode MemoryReg, ObjectCode SourceS ){
-    
-    }
-    void format5( ObjectCode Dest , ObjectCode MemoryReg ){
-    
-    }
-    void format6( ObjectCode MemoryAddr, ObjectCode SourceS ){
-    
-    }
-    void format7( ObjectCode Dest, ObjectCode MemoryAddr ){
-    
-    }
-    void format8( ObjectCode Dest, ObjectCode SourceS ){
-    
-    }
-    void format9( ObjectCode SourceS ){
-    
-    }
-    void format10( void ){
-    
+    else if( Op::name == "dcr" ){
+
     }
 }
+void Op::format10( void ){
 
+}
 
 std::string Op::format_info(void){
     switch( Op::format ){
@@ -60,4 +62,9 @@ std::string Op::format_info(void){
 }
 bool Op::check_format( Format format ){
     return format == Op::format;
+}
+
+void Op::writeInstruction( ObjectCode code ){
+    extern FILE* out;
+
 }

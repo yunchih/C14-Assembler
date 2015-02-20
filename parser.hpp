@@ -62,11 +62,6 @@ extern int yydebug;
     void die( string msg );
     int getSize( string name );
     Op* getOp( string op_name );
-    void writeInstruction( ObjectCode code );
-    void writeVariable( Identifier* var );
-
-    static Operation operation;
-    static vector<ObjectCode> args;
 
     #define Table (*table)
 
@@ -84,7 +79,7 @@ extern int yydebug;
 #define YYDEBUG 1
 
 
-#line 88 "parser.hpp" /* yacc.c:1909  */
+#line 83 "parser.hpp" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -116,7 +111,7 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 45 "parser.y" /* yacc.c:1909  */
+#line 40 "parser.y" /* yacc.c:1909  */
 
     std::string* str_ptr;
     unsigned long ObjectCode;
@@ -124,7 +119,7 @@ union YYSTYPE
     int token;
     int comment;
 
-#line 128 "parser.hpp" /* yacc.c:1909  */
+#line 123 "parser.hpp" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

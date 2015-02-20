@@ -7,6 +7,7 @@
 class Identifier{
     public:
         int eval(){}
+        void writeVar(){}
 }; 
 class Symbol : public Identifier {
     public:
@@ -24,6 +25,7 @@ class Variable : public Identifier {
             value( value ) , 
             number( number ) {}
         int eval(){ return address; }
+        void writeVar();
     private:
         int address;
         int value;

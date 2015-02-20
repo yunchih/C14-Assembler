@@ -19,11 +19,6 @@
     void die( string msg );
     int getSize( string name );
     Op* getOp( string op_name );
-    void writeInstruction( ObjectCode code );
-    void writeVariable( Identifier* var );
-
-    static Operation operation;
-    static vector<ObjectCode> args;
 
     #define Table (*table)
 
@@ -63,8 +58,8 @@
 
 %type  <Op_ptr>     Op
 %type  <ObjectCode> Instruction
-%type  <ObjectCode> Format1 Format2 Format3 Format4 Format5 
-%type  <ObjectCode> Address Dest SourceS SourceT MemorySrc MemoryDest
+%type  <ObjectCode> Format1 Format2 Format3 Format4 Format5 Format6 Format7 Format8 Format9 Format10 
+%type  <ObjectCode> Address Dest SourceS SourceT MemoryReg MemoryAddr
 %type  <ObjectCode> Size 
 
 
@@ -87,8 +82,6 @@
                         | VariableDeclaration { FORMAT( Variable ); IC++; }
                         | Instruction { 
                             FORMAT( Instruction );
-                            if( pass == SECOND )
-                                writeInstruction($1); 
                             IC++; 
                           }
 
@@ -110,7 +103,7 @@
                             if( pass == FIRST )
                                 Table[ *$1 ] = new Variable( $2 , $3 , IC , 1 );
                             else
-                                writeVariable( Table[ *$1 ] );
+                                (Table[ *$1 ])->writeVar();
                             delete $1;
                           }
                         | IDENTIFIER Size '?' { /* Uninitialized variable */
@@ -118,7 +111,7 @@
                             if( pass == FIRST )
                                 Table[ *$1 ] = new Variable( $2 , 0 , IC , 1 );
                             else
-                                writeVariable( Table[ *$1 ] );
+                                (Table[ *$1 ])->writeVar();
                             delete $1;
                           }
                         | IDENTIFIER Size T_DUP '(' IMMEDIATE IMMEDIATE ')' { /* Array declaration */
@@ -126,7 +119,7 @@
                             if( pass == FIRST )
                                 Table[ *$1 ] = new Variable( $2 , $6 , IC , $5 );
                             else
-                                writeVariable( Table[ *$1 ] );
+                                (Table[ *$1 ])->writeVar();
                             delete $1;
                           }
 
@@ -136,82 +129,82 @@
                             delete $1;
                           }
 
-    Instruction:          Format1  { FORMAT( Format1 );  $$ = $1; }
-                        | Format2  { FORMAT( Format2 );  $$ = $1; }
-                        | Format3  { FORMAT( Format3 );  $$ = $1; }
-                        | Format4  { FORMAT( Format4 );  $$ = $1; }
-                        | Format5  { FORMAT( Format5 );  $$ = $1; }
-                        | Format6  { FORMAT( Format6 );  $$ = $1; }
-                        | Format7  { FORMAT( Format7 );  $$ = $1; }
-                        | Format8  { FORMAT( Format8 );  $$ = $1; }
-                        | Format9  { FORMAT( Format9 );  $$ = $1; }
-                        | Format10 { FORMAT( Format10 ); $$ = $1; }
+    Instruction:          Format1  { FORMAT( Format1 );  }
+                        | Format2  { FORMAT( Format2 );  }
+                        | Format3  { FORMAT( Format3 );  }
+                        | Format4  { FORMAT( Format4 );  }
+                        | Format5  { FORMAT( Format5 );  }
+                        | Format6  { FORMAT( Format6 );  }
+                        | Format7  { FORMAT( Format7 );  }
+                        | Format8  { FORMAT( Format8 );  }
+                        | Format9  { FORMAT( Format9 );  }
+                        | Format10 { FORMAT( Format10 ); }
                     
     
     Format1:              Op  Dest COMMA SourceS COMMA SourceT { 
                             if( ($1)->check_format( Format1 ) ) 
-                                Operation::format1($2,$4,$6);
+                                ($1)->format1($2,$4,$6);
                             else
                                 die( ($1)->format_info() );  
                           }
 
     Format2:              Op  Dest COMMA Address {
                             if( ($1)->check_format( Format2 ) )
-                                Operation::format2($2,$4);
+                                ($1)->format2($2,$4);
                             else
                                 die( ($1)->format_info() );  
                           }
 
     Format3:              Op  Address {
                             if( ($1)->check_format( Format3 ) )
-                                Operation::format3($2);
+                                ($1)->format3($2);
                             else
                                 die( ($1)->format_info() );  
                           }
 
     Format4:              Op  MemoryReg COMMA SourceS { 
                             if( ($1)->check_format( Format4 ) ) 
-                                Operation::format4($2,$4);
+                                ($1)->format4($2,$4);
                             else
                                 die( ($1)->format_info() );  
                           }
 
     Format5:              Op  Dest COMMA MemoryReg  { 
                             if( ($1)->check_format( Format5 ) )
-                                Operation::format5($2,$4);
+                                ($1)->format5($2,$4);
                             else
                                 die( ($1)->format_info() );  
                           }
     
     Format6:              Op  MemoryAddr COMMA SourceS { 
                             if( ($1)->check_format( Format6 ) )
-                                Operation::format6($2,$4);
+                                ($1)->format6($2,$4);
                             else
                                 die( ($1)->format_info() );  
                           }
     Format7:              Op  Dest COMMA MemoryAddr  { 
                             if( ($1)->check_format( Format7 ) )
-                                Operation::format7($2,$4);
+                                ($1)->format7($2,$4);
                             else
                                 die( ($1)->format_info() );  
                           }
     Format8:              Op  Dest COMMA SourceS { 
                             if( ($1)->check_format( Format8 ) )
-                                Operation::format8($2,$4);
+                                ($1)->format8($2,$4);
                             else
                                 die( ($1)->format_info() );  
                           }
 
     Format9:              Op  SourceS { 
                             if( ($1)->check_format( Format9 ) )
-                                Operation::format9($2);
+                                ($1)->format9($2);
                             else
                                 die( ($1)->format_info() );  
                           }
     
     Format10:             Op { 
                             if( ($1)->check_format( Format10 ) )
-                                Operation::format10();
+                                ($1)->format10();
                             else
                                 die( ($1)->format_info() );  
                           }
@@ -273,16 +266,9 @@ Op* getOp( string op_name ){
         return it->second;
 }
 
-void writeInstruction( ObjectCode code ){
-    extern FILE* out;
-
-}
-
 void writeVariable( Identifier* var ){
-    extern FILE* out;
 
 }
-
 void die( string msg ){ 
     extern int yylineno;
     cerr << RED << "line "<< yylineno-1 << ": " << msg <<endl;
